@@ -1,10 +1,10 @@
 import sys
 from PyQt6.QtWidgets import QApplication
-from gui import PropagationCalculator
+from gui import PropagationCalculatorGUI
 
 def main():
     app = QApplication(sys.argv)
-    window = PropagationCalculator()
+    window = PropagationCalculatorGUI()
     window.show()
     sys.exit(app.exec())
 
