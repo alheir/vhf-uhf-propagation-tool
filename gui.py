@@ -1,10 +1,9 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QComboBox, QMessageBox, QGridLayout
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QComboBox, QMessageBox, QGridLayout, QTableWidget, QTableWidgetItem
 from PyQt6.QtCore import pyqtSlot
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import numpy as np
 from calculations import PropagationCalculator
-
 
 class PropagationCalculatorGUI(QWidget):
     def __init__(self):
@@ -12,7 +11,7 @@ class PropagationCalculatorGUI(QWidget):
 
         # Configuración básica de la ventana
         self.setWindowTitle('VHF/UHF Propagation Calculator')
-        self.setGeometry(100, 100, 800, 500)
+        self.setGeometry(100, 100, 1200, 800)
 
         # Crear widgets
         self.frequency_label = QLabel('Frecuencia (MHz):')
@@ -61,7 +60,7 @@ class PropagationCalculatorGUI(QWidget):
 
         self.distance_step_label = QLabel('Paso de avance en distancia (km):')
         self.distance_step_input = QLineEdit()
-        self.distance_step_input.setText('1')  # Valor por defecto
+        self.distance_step_input.setText('0.1')  # Valor por defecto
 
         self.conductivity_label = QLabel('Conductividad del terreno (S/m):')
         self.conductivity_input = QLineEdit()
@@ -69,12 +68,21 @@ class PropagationCalculatorGUI(QWidget):
 
         self.permittivity_label = QLabel('Permitividad relativa del terreno:')
         self.permittivity_input = QLineEdit()
-        self.permittivity_input.setText('15')  # Valor por defecto
+        self.permittivity_input.setText('1')  # Valor por defecto
+        
+        self.height_step_label = QLabel('Paso de avance en altura (m):')
+        self.height_step_input = QLineEdit()
+        self.height_step_input.setText('0.1')  # Valor por defecto
+
+        self.height_vary_label = QLabel('Antena a variar en altura:')
+        self.height_vary_input = QComboBox()
+        self.height_vary_input.addItems(['Tx', 'Rx'])
+        self.height_vary_input.setCurrentIndex(0)  # Valor por defecto
 
         self.calculate_button = QPushButton('Calcular')
         self.calculate_button.clicked.connect(self.calculate)
 
-        self.received_power_label = QLabel('Potencia recibida (dBm):')
+        self.received_power_label = QLabel('Potencia recibida (W):')
         self.electric_field_label = QLabel('Campo eléctrico (V/m):')
 
         # Crear layout y agregar widgets
@@ -105,6 +113,10 @@ class PropagationCalculatorGUI(QWidget):
         input_layout.addWidget(self.conductivity_input)
         input_layout.addWidget(self.permittivity_label)
         input_layout.addWidget(self.permittivity_input)
+        input_layout.addWidget(self.height_step_label)
+        input_layout.addWidget(self.height_step_input)
+        input_layout.addWidget(self.height_vary_label)
+        input_layout.addWidget(self.height_vary_input)
         input_layout.addWidget(self.calculate_button)
         input_layout.addWidget(self.received_power_label)
         input_layout.addWidget(self.electric_field_label)
@@ -129,19 +141,40 @@ class PropagationCalculatorGUI(QWidget):
         self.figure4 = plt.figure()
         self.canvas4 = FigureCanvas(self.figure4)
         main_layout.addWidget(self.canvas4, 1, 2)
+        
+        # Crear tablas
+        self.table1 = QTableWidget()
+        main_layout.addWidget(self.table1, 2, 1)
+
+        self.table2 = QTableWidget()
+        main_layout.addWidget(self.table2, 2, 2)
 
         self.setLayout(main_layout)
 
     @pyqtSlot()
     def calculate(self):
         try:
-            freq = float(self.frequency_input.text())
+            freq = float(self.frequency_input.text()) * 1e6 # MHz a Hz
             tx_power = float(self.power_input.text())
             height_tx = float(self.tx_height_input.text())
             height_rx = float(self.rx_height_input.text())
-            distance_start = float(self.distance_start_input.text()) * 1000
-            distance_end = float(self.distance_end_input.text()) * 1000
-            distance_step = float(self.distance_step_input.text()) * 1000
+            distance_start = float(self.distance_start_input.text()) * 1000 # km a m
+            distance_end = float(self.distance_end_input.text()) * 1000 # km a m
+            distance_step = float(self.distance_step_input.text()) * 1000 # km a m
+            height_step = float(self.height_step_input.text())
+            
+            antenna_type_map = {
+                'Dipolo de media longitud de onda': 0,
+                'Monopolo de cuarto de longitud de onda': 1,
+                'Isotrópica': 2
+            }
+            polarization_map = {
+                'Horizontal': 0,
+                'Vertical': 1
+            }
+            
+            antenna_type = antenna_type_map[self.antenna_type_input.currentText()]
+            polarization = polarization_map[self.polarization_input.currentText()]
             
             conductivity = float(self.conductivity_input.text())
             permitivity = float(self.permittivity_input.text())
@@ -151,53 +184,115 @@ class PropagationCalculatorGUI(QWidget):
             polarization = self.polarization_input.currentText()
             earth_radius_factor = float(self.earth_radius_factor_input.text())
 
-            calculator = PropagationCalculator(
-                freq,
-                tx_power,
-                height_tx,
-                height_rx,
-                distance_start,
-                distance_end,
-                distance_step,
-                conductivity,
-                permitivity,
-                roughness,
-                antenna_type,
-                polarization,
-                earth_radius_factor)
+            calculator = PropagationCalculator(freq, 
+                                               tx_power, 
+                                               conductivity, 
+                                               permitivity, 
+                                               roughness, 
+                                               antenna_type, 
+                                               polarization, 
+                                               earth_radius_factor)
+            
+            #############################
+            
+            # punto a punto
+            E_total, P_r = calculator.calculate_point_to_point(height_tx, height_rx, distance_end - distance_start)
 
-            # Realizar cálculos
-            received_power = calculator.calculate_received_power(distance_end)
-            electric_field = calculator.calculate_electric_field(received_power)
-
-            # Mostrar resultados en la GUI
+            # punto a punto en la GUI
             self.received_power_label.setText(
-                f'Potencia recibida (W): {received_power:.2e}')
+                f'Potencia recibida (W): {P_r:.2e}')
             self.electric_field_label.setText(
-                f'Campo eléctrico (V/m): {electric_field:.2e}')
+                f'Campo eléctrico (V/m): {E_total:.2e}')
+            
+            #############################
+            
+            #############################
+            
+            # variación con la distancia
+            distances, E_totals, P_rs = calculator.calculate_variation_with_distance(height_tx, height_rx, distance_start, distance_end, distance_step)
 
-            # Generar gráficos
-            distances = np.arange(distance_start, distance_end, distance_step)
-            power_values = [calculator.calculate_received_power(d) for d in distances]
-            electric_field_values = [calculator.calculate_electric_field(p) for p in power_values]
-
-            # Gráfico de potencia recibida vs distancia
+            # gráfico de potencia recibida vs distancia
             self.figure1.clear()
             ax1 = self.figure1.add_subplot(111)
-            ax1.plot(distances / 1000, power_values)  # Convertir de metros a km
+            ax1.plot(distances / 1000, P_rs)  # Convertir de metros a km
             ax1.set_title('Potencia recibida vs Distancia')
             ax1.set_xlabel('Distancia (km)')
-            ax1.set_ylabel('Potencia recibida (dBm)')
+            ax1.set_ylabel('Potencia recibida (W)')
+            ax1.set_yscale('log')
+            ax1.scatter(distances / 1000, P_rs, color='red', marker='x')
+            ax1.grid()
             self.canvas1.draw()
 
-            # Gráfico de campo eléctrico vs distancia
+            # gráfico de campo eléctrico vs distancia
             self.figure2.clear()
             ax2 = self.figure2.add_subplot(111)
-            ax2.plot(distances / 1000, electric_field_values)  # Convertir de metros a km
+            ax2.plot(distances / 1000, E_totals)  # Convertir de metros a km
             ax2.set_title('Campo eléctrico vs Distancia')
             ax2.set_xlabel('Distancia (km)')
             ax2.set_ylabel('Campo eléctrico (V/m)')
+            ax2.set_yscale('log')
+            ax2.scatter(distances / 1000, E_totals, color='red', marker='x')
+            ax2.grid()
             self.canvas2.draw()
+            
+            # tabla de variación con la distancia
+            self.table1.setRowCount(len(distances))
+            self.table1.setColumnCount(3)
+            self.table1.setHorizontalHeaderLabels(['Distancia (km)', 'Potencia recibida (W)', 'Campo eléctrico (V/m)'])
+            for i in range(len(distances)):
+                self.table1.setItem(i, 0, QTableWidgetItem(f'{distances[i] / 1000:.2e}'))
+                self.table1.setItem(i, 1, QTableWidgetItem(f'{P_rs[i]:.2e}'))
+                self.table1.setItem(i, 2, QTableWidgetItem(f'{E_totals[i]:.2e}'))
+            
+            #############################
+            
+            #############################
+            
+            # qué antena variar
+            vary_tx = self.height_vary_input.currentText() == 'Tx'
+
+            # variación con la altura de la antena
+            if vary_tx:
+                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, height_tx, height_step, height_rx, distance_end - distance_start, vary_tx=True)
+                fixed_height = height_rx
+                fixed_label = 'Altura de la antena Rx'
+            else:
+                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, height_rx, height_step, height_tx, distance_end - distance_start, vary_tx=False)
+                fixed_height = height_tx
+                fixed_label = 'Altura de la antena Tx'
+            
+            # gráfico de potencia recibida vs altura de la antena
+            self.figure3.clear()
+            ax3 = self.figure3.add_subplot(111)
+            ax3.plot(heights, P_rs_height)
+            ax3.axvline(x=fixed_height, color='r', linestyle='--', label=f'{fixed_label}')
+            ax3.set_title(f'Potencia recibida vs Altura de la antena {self.height_vary_input.currentText()}')
+            ax3.set_xlabel(f'Altura de la antena {self.height_vary_input.currentText()} (m)')
+            ax3.set_ylabel('Potencia recibida (W)')
+            ax3.legend()
+            self.canvas3.draw()
+
+            # gráfico de campo eléctrico vs altura de la antena
+            self.figure4.clear()
+            ax4 = self.figure4.add_subplot(111)
+            ax4.plot(heights, E_totals_height)
+            ax4.axvline(x=fixed_height, color='r', linestyle='--', label=f'{fixed_label}')
+            ax4.set_title(f'Campo eléctrico vs Altura de la antena {self.height_vary_input.currentText()}')
+            ax4.set_xlabel(f'Altura de la antena {self.height_vary_input.currentText()} (m)')
+            ax4.set_ylabel('Campo eléctrico (V/m)')
+            ax4.legend()
+            self.canvas4.draw()
+            
+            # tabla de variación con la altura
+            self.table2.setRowCount(len(heights))
+            self.table2.setColumnCount(3)
+            self.table2.setHorizontalHeaderLabels(['Altura (m)', 'Potencia recibida (W)', 'Campo eléctrico (V/m)'])
+            for i in range(len(heights)):
+                self.table2.setItem(i, 0, QTableWidgetItem(f'{heights[i]:.2e}'))
+                self.table2.setItem(i, 1, QTableWidgetItem(f'{P_rs_height[i]:.2e}'))
+                self.table2.setItem(i, 2, QTableWidgetItem(f'{E_totals_height[i]:.2e}'))
+            
+            
 
         except ValueError:
             self.show_error_message(
