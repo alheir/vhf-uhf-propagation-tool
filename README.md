@@ -3,6 +3,7 @@
 - [VHF \& UHF Propagation Tool](#vhf--uhf-propagation-tool)
   - [Contexto](#contexto)
   - [Consigna](#consigna)
+  - [TO-DO](#to-do)
   - [Requisitos](#requisitos)
   - [Ejecución](#ejecución)
   - [Crear Instalador](#crear-instalador)
@@ -25,7 +26,7 @@ Grupo 1:
 ## Consigna
 *Radiopropagación en las bandas de VHF (30-300 MHz) y UHF (300-3.000 MHz)*
 
-El objetivo de este trabajo es realizar un estudio de la propagación por onda espacial (directa y reflejada) sobre tierra esférica con rugosidad en la superficie y refracción troposférica en zona de visibilidad (línea de vista) y difracción (transhorizonte).
+El objetivo de este trabajo es realizar un estudio de la propagación por onda espacial (directa y reflejada) sobre tierra esférica con rugosidad en la superficie y refracción troposférica en zona de visibilidad (línea de vista) ~~y difracción (transhorizonte)~~.
 
 Como entregable, se debe desarrollar un programa de cálculo de enlace (GUI). El programa debe permitir el cálculo de la potencia recibida y el campo eléctrico para radioenlace tanto en un esquema punto a punto como también poder variar la distancia entre Tx y Rx o las alturas de las antenas.
 
@@ -39,7 +40,6 @@ Entradas básicas para el programa: estas entradas son las variables que el usua
 7. Rugosidad del terreno.
 8. Distancia, inicial y final, paso de avance en distancia
 9. Conductividad y permitividad del terreno
-10. 
 Salidas: estos son los resultados que el programa debe poder calcular.
 1. Potencia recibida.
    1. Punto a Punto.
@@ -49,6 +49,29 @@ Salidas: estos son los resultados que el programa debe poder calcular.
    1. Punto a Punto.
    2. Variación con la distancia. (gráfico y tabla)
    3. Variación con la altura de una de las antenas. (gráfico y tabla)
+
+## TO-DO
+
+- Sobre escalas/ejes:
+  * Potencias: dBm
+  * Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)
+
+- Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:
+  * Cursor a mano
+  * Poder setear coordenada (ingresar algún km intermedio y que te tire la potencia / campo)
+
+- Omitir di fracción transhorizonte
+
+- Agregar cálculo con radio terrestre (k)
+
+- Sobre rugosidad: criterio Rayleigh
+  * Multiplica luego a los coeficientes de Fresnel
+
+- Agregar línea vertical en el límite de transhorizonte
+
+- Sobre tipos de antena: solo modificar la ganancia.
+
+- Sobre polarización: usar lineal, poder elegir el ángulo de Tx y Rx. Cuando estén desfasadas 90°, se anula la recepción.
 
 ## Requisitos
 
