@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1747, 916)
+        MainWindow.resize(1562, 762)
         MainWindow.setStyleSheet("background-color: rgb(34, 40, 49);\n"
 "color: rgb(57, 62, 70);")
         self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
@@ -215,9 +215,29 @@ class Ui_MainWindow(object):
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_7.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout_7)
+        self.tabWidget = QtWidgets.QTabWidget(parent=self.centralwidget)
+        self.tabWidget.setStyleSheet("color: rgb(238, 238, 238);")
+        self.tabWidget.setTabPosition(QtWidgets.QTabWidget.TabPosition.West)
+        self.tabWidget.setTabShape(QtWidgets.QTabWidget.TabShape.Rounded)
+        self.tabWidget.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
+        self.tabWidget.setObjectName("tabWidget")
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.tab)
+        self.horizontalLayout.setObjectName("horizontalLayout")
         self.main_layout = QtWidgets.QGridLayout()
         self.main_layout.setObjectName("main_layout")
-        self.verticalLayout.addLayout(self.main_layout)
+        self.horizontalLayout.addLayout(self.main_layout)
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.tab_2)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.table_layout = QtWidgets.QHBoxLayout()
+        self.table_layout.setObjectName("table_layout")
+        self.horizontalLayout_2.addLayout(self.table_layout)
+        self.tabWidget.addTab(self.tab_2, "")
+        self.verticalLayout.addWidget(self.tabWidget)
         self.gridLayout_4 = QtWidgets.QGridLayout()
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.line = QtWidgets.QFrame(parent=self.centralwidget)
@@ -229,6 +249,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -281,3 +302,5 @@ class Ui_MainWindow(object):
         self.height_vary_input.setItemText(0, _translate("MainWindow", "Tx"))
         self.height_vary_input.setItemText(1, _translate("MainWindow", "Rx"))
         self.scatter_checkbox.setText(_translate("MainWindow", "Mostrar puntos en los gráficos"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Gráficos"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tablas"))
