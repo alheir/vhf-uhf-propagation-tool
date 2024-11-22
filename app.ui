@@ -100,23 +100,6 @@ color: rgb(57, 62, 70);</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="5">
-         <widget class="QComboBox" name="polarization_input">
-          <property name="styleSheet">
-           <string notr="true">color: rgb(238, 238, 238);</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>Horizontal</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Vertical</string>
-           </property>
-          </item>
-         </widget>
-        </item>
         <item row="1" column="12">
          <widget class="QLabel" name="label_16">
           <property name="styleSheet">
@@ -356,6 +339,16 @@ gridline-color: rgb(0, 173, 181);</string>
           </property>
           <property name="text">
            <string>Antena:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="5">
+         <widget class="QLineEdit" name="lineEdit">
+          <property name="styleSheet">
+           <string notr="true">color: rgb(238, 238, 238);</string>
+          </property>
+          <property name="text">
+           <string>0</string>
           </property>
          </widget>
         </item>
