@@ -87,13 +87,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             height_step = float(self.ui.height_step_input.text())
             
             antenna_type_map = {
-                'Dipolo de media longitud de onda': 0,
-                'Monopolo de cuarto de longitud de onda': 1,
-                'Isotrópica': 2
-            }
-            polarization_map = {
-                'Horizontal': 0,
-                'Vertical': 1
+                'Dipolo de media longitud de onda': 0,          # g = 1.641
+                'Monopolo de cuarto de longitud de onda': 1,    # g = 3.282
+                'Isotrópica': 2                                 # g = 1
             }
             
             antenna_type = antenna_type_map[self.ui.antenna_type_input.currentText()]
@@ -104,7 +100,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             permitivity = float(self.ui.permittivity_input.text())
             roughness = float(self.ui.terrain_roughness_input.text())
             
-            antenna_type = self.ui.antenna_type_input.currentText()
             earth_radius_factor = float(self.ui.earth_radius_factor_input.text())
 
             calculator = PropagationCalculator(freq, 
@@ -113,7 +108,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                permitivity, 
                                                roughness, 
                                                antenna_type, 
-                                               polarization, 
+                                               polarization_tx,
+                                               polarization_rx,
                                                earth_radius_factor)
             
             #############################
