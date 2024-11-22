@@ -343,7 +343,7 @@ gridline-color: rgb(0, 173, 181);</string>
          </widget>
         </item>
         <item row="1" column="5">
-         <widget class="QLineEdit" name="lineEdit">
+         <widget class="QLineEdit" name="polarization_input">
           <property name="styleSheet">
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
