@@ -343,14 +343,48 @@ gridline-color: rgb(0, 173, 181);</string>
          </widget>
         </item>
         <item row="1" column="5">
-         <widget class="QLineEdit" name="polarization_input">
-          <property name="styleSheet">
-           <string notr="true">color: rgb(238, 238, 238);</string>
-          </property>
-          <property name="text">
-           <string>0</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_19">
+            <property name="styleSheet">
+             <string notr="true">color: rgb(238, 238, 238);</string>
+            </property>
+            <property name="text">
+             <string>Tx:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="polarization_input_tx">
+            <property name="styleSheet">
+             <string notr="true">color: rgb(238, 238, 238);</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_20">
+            <property name="styleSheet">
+             <string notr="true">color: rgb(238, 238, 238);</string>
+            </property>
+            <property name="text">
+             <string>Rx:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="polarization_input_rx">
+            <property name="styleSheet">
+             <string notr="true">color: rgb(238, 238, 238);</string>
+            </property>
+            <property name="text">
+             <string>0</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -478,6 +512,9 @@ gridline-color: rgb(0, 173, 181);</string>
         </property>
         <property name="text">
          <string>Mostrar puntos en los gráficos</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

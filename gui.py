@@ -97,14 +97,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
             
             antenna_type = antenna_type_map[self.ui.antenna_type_input.currentText()]
-            polarization = self.ui.polarization_input.text()
+            polarization_tx = float(self.ui.polarization_input_tx.text())
+            polarization_rx = float(self.ui.polarization_input_rx.text())
             
             conductivity = float(self.ui.conductivity_input.text())
             permitivity = float(self.ui.permittivity_input.text())
             roughness = float(self.ui.terrain_roughness_input.text())
             
             antenna_type = self.ui.antenna_type_input.currentText()
-            polarization = self.ui.polarization_input.text()
             earth_radius_factor = float(self.ui.earth_radius_factor_input.text())
 
             calculator = PropagationCalculator(freq, 
