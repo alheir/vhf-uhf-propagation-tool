@@ -283,7 +283,7 @@ class Ui_MainWindow(object):
         self.terrain_roughness_input.setText(_translate("MainWindow", "1"))
         self.label_12.setText(_translate("MainWindow", "Paso (altura):"))
         self.label_7.setText(_translate("MainWindow", "K:"))
-        self.earth_radius_factor_input.setText(_translate("MainWindow", "1"))
+        self.earth_radius_factor_input.setText(_translate("MainWindow", "1.33"))
         self.distance_start_input.setText(_translate("MainWindow", "0"))
         self.label_4.setText(_translate("MainWindow", "Altura de antena Rx:"))
         self.label_15.setText(_translate("MainWindow", "Conductividad:"))
