@@ -2,8 +2,10 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidge
 from design import Ui_MainWindow  
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.backend_bases import MouseEvent
 from PyQt6.QtCore import pyqtSlot
+from PyQt6.QtWidgets import QVBoxLayout
 from calculations import PropagationCalculator
 import numpy as np
 import mplcursors
@@ -17,13 +19,13 @@ class Cursor:
         self.horizontal_line = ax.axhline(color='w', lw=0.8, ls='--')
         self.vertical_line = ax.axvline(color='w', lw=0.8, ls='--')
         # text location in axes coordinates
-        self.text = ax.text(0.72, 0.9, '', transform=ax.transAxes)
+        #self.text = ax.text(0.72, 0.9, '', transform=ax.transAxes)
 
     def set_cross_hair_visible(self, visible):
         need_redraw = self.horizontal_line.get_visible() != visible
         self.horizontal_line.set_visible(visible)
         self.vertical_line.set_visible(visible)
-        self.text.set_visible(visible)
+        #self.text.set_visible(visible)
         return need_redraw
 
     def on_mouse_move(self, event):
@@ -37,7 +39,7 @@ class Cursor:
             # update the line positions
             self.horizontal_line.set_ydata([y])
             self.vertical_line.set_xdata([x])
-            self.text.set_text(f'x={x:1.2f}, y={y:1.2f}')
+            #self.text.set_text(f'x={x:1.2f}, y={y:1.2f}')
             self.ax.figure.canvas.draw()
 
 
@@ -50,19 +52,40 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.figure1 = plt.figure()
         self.canvas1 = FigureCanvas(self.figure1)
-        self.ui.main_layout.addWidget(self.canvas1, 0, 1)
+        self.toolbar1 = NavigationToolbar(self.canvas1, self)
+        layout1 = QVBoxLayout()
+        layout1.addWidget(self.toolbar1)
+        layout1.addWidget(self.canvas1)
+        self.ui.main_layout.addLayout(layout1, 0, 1)
+        self.figure1.set_constrained_layout(True)
         
         self.figure2 = plt.figure()
         self.canvas2 = FigureCanvas(self.figure2)
-        self.ui.main_layout.addWidget(self.canvas2, 0, 2)
+        self.toolbar2 = NavigationToolbar(self.canvas2, self)      
+        layout2 = QVBoxLayout()
+        layout2.addWidget(self.toolbar2)
+        layout2.addWidget(self.canvas2)
+        self.ui.main_layout.addLayout(layout2, 0, 2)
+        self.figure2.set_constrained_layout(True)
         
         self.figure3 = plt.figure()
         self.canvas3 = FigureCanvas(self.figure3)
-        self.ui.main_layout.addWidget(self.canvas3, 1, 1)
+        self.toolbar3 = NavigationToolbar(self.canvas3, self)       
+        layout3 = QVBoxLayout()
+        layout3.addWidget(self.toolbar3)
+        layout3.addWidget(self.canvas3)
+        self.ui.main_layout.addLayout(layout3, 1, 1)
+        self.figure3.set_constrained_layout(True)
         
         self.figure4 = plt.figure()
         self.canvas4 = FigureCanvas(self.figure4)
-        self.ui.main_layout.addWidget(self.canvas4, 1, 2)
+        self.toolbar4 = NavigationToolbar(self.canvas4, self)
+        layout4 = QVBoxLayout()
+        layout4.addWidget(self.toolbar4)
+        layout4.addWidget(self.canvas4)
+        self.ui.main_layout.addLayout(layout4, 1, 2)
+        self.figure4.set_constrained_layout(True)
+        
 
         
         self.table1 = QTableWidget()
