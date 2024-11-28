@@ -4,6 +4,9 @@
   - [Contexto](#contexto)
   - [Consigna](#consigna)
   - [TO-DO](#to-do)
+    - [Core](#core)
+    - [Aesthetic](#aesthetic)
+    - [Old](#old)
   - [Requisitos](#requisitos)
   - [Ejecución](#ejecución)
   - [Crear Instalador](#crear-instalador)
@@ -52,26 +55,39 @@ Salidas: estos son los resultados que el programa debe poder calcular.
 
 ## TO-DO
 
-- Sobre escalas/ejes:
-  * Potencias: dBm
-  * Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)
+### Core
 
-- Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:
-  * Cursor a mano
+1. Polarización de antenas: solo vertical+vertical o horizontal+horizontal
+   1. Remover ángulo
+   2. Afecta en quedarte con los coefs // o perpendicular.
+2. Verificar cálculo de tierra esférica:
+   1. Alturas ht y hr efectivas, que daban negativas y rompían el factor de divergencia
+3. Revisar efecto de tipo de antena; no parecía afectar.
+4. Revisar que cambiar "cosas" hace cambiar valores
+5. Buscar alguna simulación/medición hecha con valores conocidos para contrastar lo nuestro.
+6. Ajustar valores default (permitivadad > 1)
+   1. OPCIONAL: poner presets como tierra húmeda
+7. Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:
+  * ~~Cursor a mano~~
   * Poder setear coordenada (ingresar algún km intermedio y que te tire la potencia / campo)
 
-- Omitir di fracción transhorizonte
+### Aesthetic
 
-- Agregar cálculo con radio terrestre (k)
+1. Ajustar escalas verticales
+   * Potencias: dBm
+   * Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)
+2. Agregar línea vertical en el límite de transhorizonte
 
-- Sobre rugosidad: criterio Rayleigh
-  * Multiplica luego a los coeficientes de Fresnel
+### Old
 
-- Agregar línea vertical en el límite de transhorizonte
+- ~~Omitir di fracción transhorizonte~~
 
-- Sobre tipos de antena: solo modificar la ganancia.
+- ~~Agregar cálculo con radio terrestre (k)~~
 
-- Sobre polarización: usar lineal, poder elegir el ángulo de Tx y Rx. Cuando estén desfasadas 90°, se anula la recepción.
+- ~~Sobre rugosidad: criterio Rayleigh~~
+  * ~~Multiplica luego a los coeficientes de Fresnel~~
+  
+- ~~Sobre tipos de antena: solo modificar la ganancia.~~
 
 ## Requisitos
 
