@@ -57,26 +57,30 @@ Salidas: estos son los resultados que el programa debe poder calcular.
 
 ### Core
 
-1. Polarización de antenas: solo vertical+vertical o horizontal+horizontal
-   1. Remover ángulo
-   2. Afecta en quedarte con los coefs // o perpendicular.
-2. Verificar cálculo de tierra esférica:
-   1. Alturas ht y hr efectivas, que daban negativas y rompían el factor de divergencia
-3. Revisar efecto de tipo de antena; no parecía afectar.
+1. ~~Polarización de antenas: solo vertical+vertical o horizontal+horizontal~~
+   1. ~~Remover ángulo~~
+   2. ~~Afecta en quedarte con los coefs // o perpendicular.~~
+2. ~~Verificar cálculo de tierra esférica:~~
+   ~~1. Alturas ht y hr efectivas, que daban negativas y rompían el factor de divergencia~~
+3. ~~Revisar efecto de tipo de antena; no parecía afectar.~~
 4. Revisar que cambiar "cosas" hace cambiar valores
 5. Buscar alguna simulación/medición hecha con valores conocidos para contrastar lo nuestro.
-6. Ajustar valores default (permitivadad > 1)
+6. ~~Ajustar valores default (permitivadad > 1)~~
    1. OPCIONAL: poner presets como tierra húmeda
 7. Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:
   * ~~Cursor a mano~~
   * Poder setear coordenada (ingresar algún km intermedio y que te tire la potencia / campo)
+8. Revisar indices/distancias mínimas para arrancar a calcular.
+9. Se detecta casi que Psi da negativo
+   1.  ![alt text](image.png)
 
 ### Aesthetic
 
-1. Ajustar escalas verticales
-   * Potencias: dBm
-   * Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)
-2. Agregar línea vertical en el límite de transhorizonte
+1. ~~Ajustar escalas verticales~~
+   * ~~Potencias: dBm~~
+   * ~~Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)~~
+2. ~~Plots de potencia arrancan siempre en +4dBm~~
+3. Agregar línea vertical en el límite de transhorizonte
 
 ### Old
 

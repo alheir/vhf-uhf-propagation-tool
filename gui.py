@@ -10,6 +10,8 @@ from calculations import PropagationCalculator
 import numpy as np
 import mplcursors
 
+PLOT_Y_MARGIN = 5
+
 class Cursor:
     """
     A cross hair cursor.
@@ -45,7 +47,7 @@ class Cursor:
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
-        plt.style.use('dark_background')
+        # plt.style.use('dark_background')
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)  # Set up the UI
@@ -115,9 +117,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 'Isotrópica': 2                                 # g = 1
             }
             
+            antenna_pol_map = {
+                'Horizontal': 0,         
+                'Vertical': 1,
+            }
+            
             antenna_type = antenna_type_map[self.ui.antenna_type_input.currentText()]
-            polarization_tx = float(self.ui.polarization_input_tx.text())
-            polarization_rx = float(self.ui.polarization_input_rx.text())
+            antenna_pol = antenna_pol_map[self.ui.antenna_pol_input.currentText()]
             
             conductivity = float(self.ui.conductivity_input.text())
             permitivity = float(self.ui.permittivity_input.text())
@@ -130,9 +136,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                conductivity, 
                                                permitivity, 
                                                roughness, 
-                                               antenna_type, 
-                                               polarization_tx,
-                                               polarization_rx,
+                                               antenna_type,
+                                               antenna_pol,
                                                earth_radius_factor)
             
             #############################
@@ -153,10 +158,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
             # variación con la distancia
             distances, E_totals, P_rs = calculator.calculate_variation_with_distance(height_tx, height_rx, distance_start, distance_end, distance_step)
+            
+            # V/m a dBuV/cm
+            E_totals = [20 * np.log10(e_tot * 1e6 / 100e0) for e_tot in E_totals]
 
-            # W a dBm si es necesario
-            if self.ui.power_unit_input.currentText() == 'dBm':
-                P_rs = [10 * np.log10(p * 1e3) for p in P_rs]
+            # W a dBm 
+            P_rs = [10 * np.log10(p * 1e3) for p in P_rs]
 
             # gráfico de potencia recibida vs distancia
             self.figure1.clear()
@@ -165,7 +172,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             mplcursors.cursor() 
             ax1.set_title('Potencia recibida vs Distancia')
             ax1.set_xlabel('Distancia (km)')
-            ax1.set_ylabel(f'Potencia recibida ({self.ui.power_unit_input.currentText()})')
+            ax1.set_ylabel('Potencia recibida (dBm)')
+            ax1.set_ylim(bottom=np.min(P_rs) - PLOT_Y_MARGIN, top=np.max(P_rs) + PLOT_Y_MARGIN)
             if self.ui.scatter_checkbox.isChecked():
                 ax1.scatter(distances / 1000, P_rs, color='red', marker='x', alpha=0.5)
             ax1.grid()
@@ -183,8 +191,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             mplcursors.cursor() 
             ax2.set_title('Campo eléctrico vs Distancia')
             ax2.set_xlabel('Distancia (km)')
-            ax2.set_ylabel('Campo eléctrico (V/m)')
-            ax2.set_yscale('log')
+            ax2.set_ylabel('Campo eléctrico (dBuV/cm)')
+            ax2.set_ylim(bottom=np.min(E_totals) - PLOT_Y_MARGIN, top=np.max(E_totals) + PLOT_Y_MARGIN)
             if self.ui.scatter_checkbox.isChecked():
                 ax2.scatter(distances / 1000, E_totals, color='red', marker='x', alpha=0.5)
             ax2.grid()
@@ -197,7 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # tabla de variación con la distancia
             self.table1.setRowCount(len(distances))
             self.table1.setColumnCount(3)
-            self.table1.setHorizontalHeaderLabels(['Distancia (km)', 'Potencia recibida (W)', 'Campo eléctrico (V/m)'])
+            self.table1.setHorizontalHeaderLabels(['Distancia (km)', 'Potencia recibida (dBm)', 'Campo eléctrico (dBuV/cm)'])
             for i in range(len(distances)):
                 self.table1.setItem(i, 0, QTableWidgetItem(f'{distances[i] / 1000:.2e}'))
                 self.table1.setItem(i, 1, QTableWidgetItem(f'{P_rs[i]:.2e}'))
@@ -220,9 +228,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 fixed_height = height_tx
                 fixed_label = 'Altura de la antena Tx'
             
-            # W a dBm si es necesario
-            if self.ui.power_unit_input.currentText() == 'dBm':
-                P_rs_height = [10 * np.log10(p * 1e3) for p in P_rs_height]  # Convertir W a dBm
+            # V/m a dBuV/cm 
+            E_totals_height = [20 * np.log10(e_tot * 1e6 / 100e0) for e_tot in E_totals_height]  
+            
+            # W a dBm  
+            P_rs_height = [10 * np.log10(p * 1e3) for p in P_rs_height]
             
             # gráfico de potencia recibida vs altura de la antena
             self.figure3.clear()
@@ -232,7 +242,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax3.axvline(x=fixed_height, color='r', linestyle='--', label=f'{fixed_label}')
             ax3.set_title(f'Potencia recibida vs Altura de la antena {self.ui.height_vary_input.currentText()}')
             ax3.set_xlabel(f'Altura de la antena {self.ui.height_vary_input.currentText()} (m)')
-            ax3.set_ylabel(f'Potencia recibida ({self.ui.power_unit_input.currentText()})')
+            ax3.set_ylabel('Potencia recibida (dBm)')
+            ax3.set_ylim(bottom=np.min(P_rs_height) - PLOT_Y_MARGIN, top=np.max(P_rs_height) + PLOT_Y_MARGIN)
             if self.ui.scatter_checkbox.isChecked():
                 ax3.scatter(heights, P_rs_height, color='red', marker='x', alpha=0.5)
             ax3.legend()
@@ -251,8 +262,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax4.axvline(x=fixed_height, color='r', linestyle='--', label=f'{fixed_label}')
             ax4.set_title(f'Campo eléctrico vs Altura de la antena {self.ui.height_vary_input.currentText()}')
             ax4.set_xlabel(f'Altura de la antena {self.ui.height_vary_input.currentText()} (m)')
-            ax4.set_ylabel('Campo eléctrico (V/m)')
-            ax4.set_yscale('log')
+            ax4.set_ylabel('Campo eléctrico (dBuV/cm)')
+            ax4.set_ylim(bottom=np.min(E_totals_height) - PLOT_Y_MARGIN, top=np.max(E_totals_height) + PLOT_Y_MARGIN)
             if self.ui.scatter_checkbox.isChecked():
                 ax4.scatter(heights, E_totals_height, color='red', marker='x')
             ax4.legend()
@@ -266,7 +277,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             # tabla de variación con la altura
             self.table2.setRowCount(len(heights))
             self.table2.setColumnCount(3)
-            self.table2.setHorizontalHeaderLabels(['Altura (m)', 'Potencia recibida (W)', 'Campo eléctrico (V/m)'])
+            self.table2.setHorizontalHeaderLabels(['Altura (m)', 'Potencia recibida (dBm)', 'Campo eléctrico (dBuV/cm)'])
             for i in range(len(heights)):
                 self.table2.setItem(i, 0, QTableWidgetItem(f'{heights[i]:.2e}'))
                 self.table2.setItem(i, 1, QTableWidgetItem(f'{P_rs_height[i]:.2e}'))

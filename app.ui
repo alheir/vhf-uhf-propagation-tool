@@ -24,7 +24,7 @@ color: rgb(57, 62, 70);</string>
       <item row="0" column="0">
        <widget class="Line" name="line_2">
         <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
@@ -56,7 +56,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Paso (distancia):</string>
+           <string>Paso de distancia (km):</string>
           </property>
          </widget>
         </item>
@@ -80,16 +80,6 @@ color: rgb(57, 62, 70);</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="4">
-         <widget class="QLabel" name="label_6">
-          <property name="styleSheet">
-           <string notr="true">color: rgb(238, 238, 238);</string>
-          </property>
-          <property name="text">
-           <string>Polarización:</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="11">
          <widget class="QLineEdit" name="height_step_input">
           <property name="styleSheet">
@@ -106,7 +96,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Permitividad:</string>
+           <string>Permitividad relativa:</string>
           </property>
          </widget>
         </item>
@@ -116,7 +106,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>1</string>
+           <string>3</string>
           </property>
          </widget>
         </item>
@@ -159,7 +149,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Paso (altura):</string>
+           <string>Paso de altura (m):</string>
           </property>
          </widget>
         </item>
@@ -199,7 +189,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Altura de antena Rx:</string>
+           <string>Altura Rx (m):</string>
           </property>
          </widget>
         </item>
@@ -209,7 +199,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Conductividad:</string>
+           <string>Conductividad (S/m):</string>
           </property>
          </widget>
         </item>
@@ -219,7 +209,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Altura de antena Tx:</string>
+           <string>Altura Tx (m):</string>
           </property>
          </widget>
         </item>
@@ -249,7 +239,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Frencuencia:</string>
+           <string>Frecuencia (MHz):</string>
           </property>
          </widget>
         </item>
@@ -259,7 +249,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Potencia:</string>
+           <string>Potencia (W):</string>
           </property>
          </widget>
         </item>
@@ -269,7 +259,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Distancia inicial:</string>
+           <string>Distancia inicial (km):</string>
           </property>
          </widget>
         </item>
@@ -279,7 +269,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Distancia final:</string>
+           <string>Distancia final (km):</string>
           </property>
          </widget>
         </item>
@@ -328,7 +318,7 @@ gridline-color: rgb(0, 173, 181);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>0.01</string>
+           <string>0.0001</string>
           </property>
          </widget>
         </item>
@@ -343,48 +333,7 @@ gridline-color: rgb(0, 173, 181);</string>
          </widget>
         </item>
         <item row="1" column="5">
-         <layout class="QHBoxLayout" name="horizontalLayout_3">
-          <item>
-           <widget class="QLabel" name="label_19">
-            <property name="styleSheet">
-             <string notr="true">color: rgb(238, 238, 238);</string>
-            </property>
-            <property name="text">
-             <string>Tx:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="polarization_input_tx">
-            <property name="styleSheet">
-             <string notr="true">color: rgb(238, 238, 238);</string>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_20">
-            <property name="styleSheet">
-             <string notr="true">color: rgb(238, 238, 238);</string>
-            </property>
-            <property name="text">
-             <string>Rx:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="polarization_input_rx">
-            <property name="styleSheet">
-             <string notr="true">color: rgb(238, 238, 238);</string>
-            </property>
-            <property name="text">
-             <string>0</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <layout class="QHBoxLayout" name="horizontalLayout_3"/>
         </item>
        </layout>
       </item>
@@ -392,38 +341,6 @@ gridline-color: rgb(0, 173, 181);</string>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_7">
-      <item>
-       <widget class="QLabel" name="label_17">
-        <property name="styleSheet">
-         <string notr="true">color: rgb(238, 238, 238);</string>
-        </property>
-        <property name="text">
-         <string>Tipo de antena:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBox_5">
-        <property name="styleSheet">
-         <string notr="true">color: rgb(238, 238, 238);</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Isotrópica</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Dipolo de media onda</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Monopolo de cuarto de onda</string>
-         </property>
-        </item>
-       </widget>
-      </item>
       <item>
        <widget class="QLabel" name="label_18">
         <property name="styleSheet">
@@ -435,7 +352,7 @@ gridline-color: rgb(0, 173, 181);</string>
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="comboBox_6">
+       <widget class="QComboBox" name="antenna_pol_input">
         <property name="styleSheet">
          <string notr="true">color: rgb(238, 238, 238);</string>
         </property>
@@ -447,33 +364,6 @@ gridline-color: rgb(0, 173, 181);</string>
         <item>
          <property name="text">
           <string>Vertical</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_13">
-        <property name="styleSheet">
-         <string notr="true">color: rgb(238, 238, 238);</string>
-        </property>
-        <property name="text">
-         <string>Unidad de potencia:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="power_unit_input">
-        <property name="styleSheet">
-         <string notr="true">color: rgb(238, 238, 238);</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>W</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>dBm</string>
          </property>
         </item>
        </widget>
@@ -521,7 +411,7 @@ gridline-color: rgb(0, 173, 181);</string>
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
+         <enum>Qt::Vertical</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -539,16 +429,16 @@ gridline-color: rgb(0, 173, 181);</string>
        <string notr="true">color: rgb(238, 238, 238);</string>
       </property>
       <property name="tabPosition">
-       <enum>QTabWidget::TabPosition::West</enum>
+       <enum>QTabWidget::North</enum>
       </property>
       <property name="tabShape">
-       <enum>QTabWidget::TabShape::Rounded</enum>
+       <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
       <property name="elideMode">
-       <enum>Qt::TextElideMode::ElideNone</enum>
+       <enum>Qt::ElideLeft</enum>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -577,7 +467,7 @@ gridline-color: rgb(0, 173, 181);</string>
       <item row="0" column="0">
        <widget class="Line" name="line">
         <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
+         <enum>Qt::Vertical</enum>
         </property>
        </widget>
       </item>
