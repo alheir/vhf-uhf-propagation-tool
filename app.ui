@@ -129,7 +129,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>Rugosidad:</string>
+           <string>Rugosidad (μm):</string>
           </property>
          </widget>
         </item>
@@ -139,7 +139,7 @@ color: rgb(57, 62, 70);</string>
            <string notr="true">color: rgb(238, 238, 238);</string>
           </property>
           <property name="text">
-           <string>1</string>
+           <string>1.5</string>
           </property>
          </widget>
         </item>

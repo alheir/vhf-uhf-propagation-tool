@@ -127,7 +127,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
             conductivity = float(self.ui.conductivity_input.text())
             permitivity = float(self.ui.permittivity_input.text())
-            roughness = float(self.ui.terrain_roughness_input.text())
+            roughness = float(self.ui.terrain_roughness_input.text()) / 1e6 # um a m
             
             earth_radius_factor = float(self.ui.earth_radius_factor_input.text())
 

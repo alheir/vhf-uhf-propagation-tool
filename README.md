@@ -64,15 +64,20 @@ Salidas: estos son los resultados que el programa debe poder calcular.
    ~~1. Alturas ht y hr efectivas, que daban negativas y rompían el factor de divergencia~~
 3. ~~Revisar efecto de tipo de antena; no parecía afectar.~~
 4. Revisar que cambiar "cosas" hace cambiar valores
+   1. Revisar valor inicial de rugosidad (se cambió a $\mu$m)
+   2. Rampita?? 
+      1. ![alt text](image-1.png)
 5. Buscar alguna simulación/medición hecha con valores conocidos para contrastar lo nuestro.
+   1. ¿Buscar nosotros? ¿Patricio?
 6. ~~Ajustar valores default (permitivadad > 1)~~
    1. OPCIONAL: poner presets como tierra húmeda
 7. Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:
   * ~~Cursor a mano~~
   * Poder setear coordenada (ingresar algún km intermedio y que te tire la potencia / campo)
 8. Revisar indices/distancias mínimas para arrancar a calcular.
-9. Se detecta casi que Psi da negativo
+9.  **Se detecta Psi negativo**
    1.  ![alt text](image.png)
+   2.  Y también en la pic 4.2.1
 
 ### Aesthetic
 
@@ -80,7 +85,7 @@ Salidas: estos son los resultados que el programa debe poder calcular.
    * ~~Potencias: dBm~~
    * ~~Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)~~
 2. ~~Plots de potencia arrancan siempre en +4dBm~~
-3. Agregar línea vertical en el límite de transhorizonte
+3. **Agregar línea vertical en el límite de transhorizonte**
 
 ### Old
 
