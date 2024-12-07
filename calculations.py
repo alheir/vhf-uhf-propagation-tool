@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import fsolve
 
 C = 299792458.0  # velocidad de la luz en m/s
 EPSILON_ZERO = 8.854187817e-12  # permitividad del vacío en F/m
@@ -33,6 +34,7 @@ class PropagationCalculator:
         self.antenna_rx_gain = ANTENNA_GAINS[int(antenna_type)]
         self.earth_radius_factor = earth_radius_factor
         self.antenna_pol = antenna_pol
+        self.LOS = None
 
     def calculate_point_to_point(self, height_tx, height_rx, distance):
         
@@ -40,6 +42,10 @@ class PropagationCalculator:
         r = distance  # distancia entre Tx y Rx, sobre la superficie
         ht = height_tx
         hr = height_rx
+
+        if r >= self.LOS:
+            # print(f"LOS distance is {self.LOS}. r={r}")
+            return np.finfo(float).eps, np.finfo(float).eps    
         
         p = (2 / np.sqrt(3)) * np.sqrt(re * (hr + ht) + r*r/4)
         
@@ -57,21 +63,53 @@ class PropagationCalculator:
         Rd = np.sqrt((hr - ht)**2 + 4 * (re + hr) * (re + ht) * (np.sin((phi1 + phi2) / 2)**2)) # distancia entre Tx y Rx, real
         
         
-        arcsin_arg = (hr / R1) - (R1 / (2 * re))
+        # arcsin_arg = (hr / R1) - (R1 / (2 * re))
         
-        if arcsin_arg > 1 or arcsin_arg < -1:
-            print(f"Warning: arcsin_arg={arcsin_arg} is out of range. Calculation may be inaccurate.")
-            return np.finfo(float).eps, np.finfo(float).eps
+        # if arcsin_arg > 1 or arcsin_arg < -1:
+        #     print(f"Warning: arcsin_arg={arcsin_arg} is out of range. Calculation may be inaccurate.")
+        #     return np.finfo(float).eps, np.finfo(float).eps
+        
+        # Psi = np.arcsin(arcsin_arg)
+        
+        # if Psi < 0 or Psi > (np.pi / 2):
+        #     print(f"Warning: Psi={Psi} is out of range. Calculation may be inaccurate.")
+        #     return np.finfo(float).eps, np.finfo(float).eps
+        
+        # Delta_R = (4 * R1 * R2 * (np.sin(Psi)**2)) / (R1 + R2 + Rd)     # diferencia de camino físico    
+        
+        Delta_R = R1 + R2 - Rd
+        # if Delta_R <= 0:
+        #     print(f"Warning: Delta_R={Delta_R} is out of range. Calculation may be inaccurate.")
+        #     return np.finfo(float).eps, np.finfo(float).eps
+
+        sqrt_arg = Delta_R * (R1 + R2 + Rd) / (4 * R1 * R2)
+        # if sqrt_arg < 0:
+        #     print(f"Warning: sqrt_arg={sqrt_arg} is out of range. Calculation may be inaccurate.")
+        #     return np.finfo(float).eps, np.finfo(float).eps
+        
+        arcsin_arg = np .sqrt(sqrt_arg) 
+        # if arcsin_arg > 1 or arcsin_arg < -1:
+        #     print(f"Warning: arcsin_arg={arcsin_arg} is out of range. Calculation may be inaccurate.")
+        #     return np.finfo(float).eps, np.finfo(float).eps
         
         Psi = np.arcsin(arcsin_arg)
+        # if Psi <= 0 or Psi >= (np.pi / 2):
+        #     print(f"Warning: Psi={Psi} is out of range. Calculation may be inaccurate.")
+        #     return np.finfo(float).eps, np.finfo(float).eps
         
-        if Psi < 0 or Psi > (np.pi / 2):
-            print(f"Warning: Psi={Psi} is out of range. Calculation may be inaccurate.")
-            return np.finfo(float).eps, np.finfo(float).eps
+        # if (r >= 25.5*1000 and r <= 26.5*1000):
+        #     print(f"r is between 25.5 and 26.5. Psi={Psi}, Delta_R={Delta_R}")
+        #     print(f"R1={R1}, R2={R2}, Rd={Rd}")
+        #     print("")
         
-        Delta_R = (4 * R1 * R2 * (np.sin(Psi)**2)) / (R1 + R2 + Rd)     # diferencia de camino físico    
+        # if (r >= 30*1000 and r <= 32*1000):
+        #     print(f"r is between 30 and 32. Psi={Psi}, Delta_R={Delta_R}")
+        #     print(f"R1={R1}, R2={R2}, Rd={Rd}")
+        #     print("")
         
         Delta = self.Beta * Delta_R                                     # diferencia de camino óptico
+        
+
         
 
 
@@ -110,20 +148,52 @@ class PropagationCalculator:
 
         return E_total, P_r
 
+    def calculate_calc_los(self, height_tx, height_rx):
+        re = self.earth_radius_factor * EARTH_RADIUS
+        ht = height_tx
+        hr = height_rx
+
+        def delta_r_function(r):
+            p = (2 / np.sqrt(3)) * np.sqrt(re * (hr + ht) + r*r/4)
+            Xi = np.arcsin(2 * re * r * (hr - ht) / (p*p*p))
+            r1 = r/2 - p * np.sin(Xi/3)
+            r2 = r - r1
+            phi1 = r1/re
+            phi2 = r2/re
+            R1 = np.sqrt(ht**2 + 4 * re * (re + ht) * (np.sin(phi1 / 2)**2))
+            R2 = np.sqrt(hr**2 + 4 * re * (re + hr) * (np.sin(phi2 / 2)**2))
+            Rd = np.sqrt((hr - ht)**2 + 4 * (re + hr) * (re + ht) * (np.sin((phi1 + phi2) / 2)**2))
+            Delta_R = R1 + R2 - Rd
+            return Delta_R
+
+        
+        r_initial_guess = 1e3
+        r_solution = fsolve(delta_r_function, r_initial_guess)
+        
+        self.LOS = r_solution[0]
+        
+    
+    def calcualte_get_los(self):
+        if self.LOS is None:
+            raise Exception("LOS distance has not been calculated")
+        
+        return self.LOS   
+        
+
     def calculate_variation_with_distance(self, height_tx, height_rx, distance_start, distance_end, distance_step):
-        distances = np.arange(distance_start, distance_end, distance_step)
+        distances = np.arange(distance_start, distance_end+distance_step, distance_step)
         E_totals = []
         P_rs = []
 
         for distance in distances:
-            E_total, P_r = self.calculate_point_to_point(height_tx, height_rx, (distance - distance_start) + distance_step)
+            E_total, P_r = self.calculate_point_to_point(height_tx, height_rx, distance)
             E_totals.append(E_total)
             P_rs.append(P_r)
 
         return distances, E_totals, P_rs
 
     def calculate_variation_with_height(self, height_start, height_end, height_step, height_fixed, distance, vary_tx=True):
-        heights = np.arange(height_start, height_end, height_step)
+        heights = np.arange(height_start, height_end+height_step, height_step)
         E_totals = []
         P_rs = []
 

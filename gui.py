@@ -11,6 +11,8 @@ import numpy as np
 import mplcursors
 
 PLOT_Y_MARGIN = 5
+PLOT_Y_MARGIN_FACTOR = 0.1
+PLOT_X_MARGIN_FACTOR = 0.05
 
 class Cursor:
     """
@@ -111,6 +113,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             distance_step = float(self.ui.distance_step_input.text()) * 1000 # km a m
             height_step = float(self.ui.height_step_input.text())
             
+            if distance_start == 0: distance_start = distance_step
+            
             antenna_type_map = {
                 'Dipolo de media longitud de onda': 0,          # g = 1.641
                 'Monopolo de cuarto de longitud de onda': 1,    # g = 3.282
@@ -140,10 +144,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                antenna_pol,
                                                earth_radius_factor)
             
+            calculator.calculate_calc_los(height_tx, height_rx)
+            LOS = calculator.calcualte_get_los()
+            
             #############################
             
             # punto a punto
-            E_total, P_r = calculator.calculate_point_to_point(height_tx, height_rx, distance_end - distance_start)
+            # E_total, P_r = calculator.calculate_point_to_point(height_tx, height_rx, distance_end)
 
             # punto a punto en la GUI
             '''
@@ -173,9 +180,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax1.set_title('Potencia recibida vs Distancia')
             ax1.set_xlabel('Distancia (km)')
             ax1.set_ylabel('Potencia recibida (dBm)')
-            ax1.set_ylim(bottom=np.min(P_rs) - PLOT_Y_MARGIN, top=np.max(P_rs) + PLOT_Y_MARGIN)
+            ax1.set_ylim(bottom=np.min(P_rs) - (np.max(P_rs) - np.min(P_rs))*PLOT_Y_MARGIN_FACTOR, top=np.max(P_rs) + (np.max(P_rs) - np.min(P_rs))*PLOT_Y_MARGIN_FACTOR)
             if self.ui.scatter_checkbox.isChecked():
                 ax1.scatter(distances / 1000, P_rs, color='red', marker='x', alpha=0.5)
+            
+            if distance_end >= LOS:
+                ax1.axvline(x=LOS / 1000, color='g', linestyle='--', label=f'Radio horizonte: {LOS / 1000:.2f} km')    
+                ax1.legend()   
+            
+            ax1.set_xlim(left=(distance_start / 1000) - (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR, right=(distance_end / 1000) + (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR)
+                     
             ax1.grid()
             
             
@@ -192,10 +206,17 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax2.set_title('Campo eléctrico vs Distancia')
             ax2.set_xlabel('Distancia (km)')
             ax2.set_ylabel('Campo eléctrico (dBuV/cm)')
-            ax2.set_ylim(bottom=np.min(E_totals) - PLOT_Y_MARGIN, top=np.max(E_totals) + PLOT_Y_MARGIN)
+
+            ax2.set_ylim(bottom=np.min(E_totals) - (np.max(E_totals) - np.min(E_totals))*PLOT_Y_MARGIN_FACTOR, top=np.max(E_totals) + (np.max(E_totals) - np.min(E_totals))*PLOT_Y_MARGIN_FACTOR)
             if self.ui.scatter_checkbox.isChecked():
                 ax2.scatter(distances / 1000, E_totals, color='red', marker='x', alpha=0.5)
             ax2.grid()
+            
+            if distance_end >= LOS:
+                ax2.axvline(x=LOS / 1000, color='g', linestyle='--', label=f'Radio horizonte: {LOS / 1000:.2f} km')
+                ax2.legend()
+                
+            ax2.set_xlim(left=(distance_start / 1000) - (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR, right=(distance_end / 1000) + (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR)
             
             cursor2 = Cursor(ax2)
             self.canvas2.mpl_connect('motion_notify_event', cursor2.on_mouse_move)
@@ -210,6 +231,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.table1.setItem(i, 0, QTableWidgetItem(f'{distances[i] / 1000:.2e}'))
                 self.table1.setItem(i, 1, QTableWidgetItem(f'{P_rs[i]:.2e}'))
                 self.table1.setItem(i, 2, QTableWidgetItem(f'{E_totals[i]:.2e}'))
+            self.table1.resizeColumnsToContents()
             
             #############################
             
@@ -220,11 +242,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             # variación con la altura de la antena
             if vary_tx:
-                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_rx, distance_end - distance_start, vary_tx=True)
+                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_rx, distance_end, vary_tx=True)
                 fixed_height = height_rx
                 fixed_label = 'Altura de la antena Rx'
             else:
-                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_tx, distance_end - distance_start, vary_tx=False)
+                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_tx, distance_end, vary_tx=False)
                 fixed_height = height_tx
                 fixed_label = 'Altura de la antena Tx'
             
@@ -243,7 +265,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax3.set_title(f'Potencia recibida vs Altura de la antena {self.ui.height_vary_input.currentText()}')
             ax3.set_xlabel(f'Altura de la antena {self.ui.height_vary_input.currentText()} (m)')
             ax3.set_ylabel('Potencia recibida (dBm)')
-            ax3.set_ylim(bottom=np.min(P_rs_height) - PLOT_Y_MARGIN, top=np.max(P_rs_height) + PLOT_Y_MARGIN)
+            ax3.set_ylim(bottom=np.min(P_rs_height) - (np.max(P_rs_height) - np.min(P_rs_height))*PLOT_Y_MARGIN_FACTOR, top=np.max(P_rs_height) + (np.max(P_rs_height) - np.min(P_rs_height))*PLOT_Y_MARGIN_FACTOR)
             if self.ui.scatter_checkbox.isChecked():
                 ax3.scatter(heights, P_rs_height, color='red', marker='x', alpha=0.5)
             ax3.legend()
@@ -263,7 +285,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax4.set_title(f'Campo eléctrico vs Altura de la antena {self.ui.height_vary_input.currentText()}')
             ax4.set_xlabel(f'Altura de la antena {self.ui.height_vary_input.currentText()} (m)')
             ax4.set_ylabel('Campo eléctrico (dBuV/cm)')
-            ax4.set_ylim(bottom=np.min(E_totals_height) - PLOT_Y_MARGIN, top=np.max(E_totals_height) + PLOT_Y_MARGIN)
+            ax4.set_ylim(bottom=np.min(E_totals_height) - (np.max(E_totals_height) - np.min(E_totals_height))*PLOT_Y_MARGIN_FACTOR, top=np.max(E_totals_height) + (np.max(E_totals_height) - np.min(E_totals_height))*PLOT_Y_MARGIN_FACTOR)
             if self.ui.scatter_checkbox.isChecked():
                 ax4.scatter(heights, E_totals_height, color='red', marker='x')
             ax4.legend()
@@ -282,6 +304,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.table2.setItem(i, 0, QTableWidgetItem(f'{heights[i]:.2e}'))
                 self.table2.setItem(i, 1, QTableWidgetItem(f'{P_rs_height[i]:.2e}'))
                 self.table2.setItem(i, 2, QTableWidgetItem(f'{E_totals_height[i]:.2e}'))
+            self.table2.resizeColumnsToContents()
             
         except ValueError:
             #self.show_error_message(
