@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QSizePolicy
 from design import Ui_MainWindow  
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QComboBox, QMessageBox, QGridLayout, QTableWidget, QTableWidgetItem, QCheckBox, QFileDialog, QFormLayout
+from PyQt6.QtCore import pyqtSlot
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -9,6 +11,7 @@ from PyQt6.QtWidgets import QVBoxLayout
 from calculations import PropagationCalculator
 import numpy as np
 import mplcursors
+import csv
 
 PLOT_Y_MARGIN = 5
 PLOT_Y_MARGIN_FACTOR = 0.1
@@ -100,6 +103,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ui.table_layout.addWidget(self.table2)
         
         self.ui.calculate_button.clicked.connect(self.calculate)
+        
+        self.ui.pushExp1.clicked.connect(lambda: self.export_table_to_csv(self.table1, 'vs_distancia.csv'))
+        self.ui.pushExp2.clicked.connect(lambda: self.export_table_to_csv(self.table2, 'vs_altura.csv'))
+        
+        self.metadata_str = ''
     
     @pyqtSlot()
     def calculate(self):
@@ -116,8 +124,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if distance_start == 0: distance_start = distance_step
             
             antenna_type_map = {
-                'Dipolo de media longitud de onda': 0,          # g = 1.641
-                'Monopolo de cuarto de longitud de onda': 1,    # g = 3.282
+                'Dipolo λ/2': 0,          # g = 1.641
+                'Monopolo λ/4': 1,    # g = 3.282
                 'Isotrópica': 2                                 # g = 1
             }
             
@@ -131,7 +139,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             
             conductivity = float(self.ui.conductivity_input.text())
             permitivity = float(self.ui.permittivity_input.text())
-            roughness = float(self.ui.terrain_roughness_input.text()) / 1e6 # um a m
+            roughness = float(self.ui.terrain_roughness_input.text())
             
             earth_radius_factor = float(self.ui.earth_radius_factor_input.text())
 
@@ -164,33 +172,55 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #############################
             
             # variación con la distancia
-            distances, E_totals, P_rs = calculator.calculate_variation_with_distance(height_tx, height_rx, distance_start, distance_end, distance_step)
+            distances, E_totals, P_rs, E_fss, P_r_fss = calculator.calculate_variation_with_distance(height_tx, height_rx, distance_start, distance_end, distance_step)
             
             # V/m a dBuV/cm
             E_totals = [20 * np.log10(e_tot * 1e6 / 100e0) for e_tot in E_totals]
+            E_fss = [20 * np.log10(e_fs * 1e6 / 100e0) for e_fs in E_fss]
 
             # W a dBm 
             P_rs = [10 * np.log10(p * 1e3) for p in P_rs]
+            P_r_fss = [10 * np.log10(p_fs * 1e3) for p_fs in P_r_fss]
 
             # gráfico de potencia recibida vs distancia
             self.figure1.clear()
             ax1 = self.figure1.add_subplot(111)
-            ax1.plot(distances / 1000, P_rs)  # Convertir de metros a km
+            ax1.plot(distances / 1000, P_rs, color='r')  # Convertir de metros a km
+            ax1.plot(distances / 1000, P_r_fss, label='FS', color='b')  # Convertir de metros a km
             mplcursors.cursor() 
             ax1.set_title('Potencia recibida vs Distancia')
             ax1.set_xlabel('Distancia (km)')
             ax1.set_ylabel('Potencia recibida (dBm)')
-            ax1.set_ylim(bottom=np.min(P_rs) - (np.max(P_rs) - np.min(P_rs))*PLOT_Y_MARGIN_FACTOR, top=np.max(P_rs) + (np.max(P_rs) - np.min(P_rs))*PLOT_Y_MARGIN_FACTOR)
+            ax1.set_ylim(bottom=np.min(P_rs) - (np.max(P_r_fss) - np.min(P_rs))*PLOT_Y_MARGIN_FACTOR, top=np.max(P_r_fss) + (np.max(P_r_fss) - np.min(P_rs))*PLOT_Y_MARGIN_FACTOR)
             if self.ui.scatter_checkbox.isChecked():
-                ax1.scatter(distances / 1000, P_rs, color='red', marker='x', alpha=0.5)
-            
+                ax1.scatter(distances / 1000, P_rs, color='r', marker='x', alpha=0.5)
+                ax1.scatter(distances / 1000, P_r_fss, color='b', marker='o', alpha=0.5)
+                
             if distance_end >= LOS:
-                ax1.axvline(x=LOS / 1000, color='g', linestyle='--', label=f'Radio horizonte: {LOS / 1000:.2f} km')    
-                ax1.legend()   
+                ax1.axvline(x=LOS / 1000, color='g', linestyle='--')
             
             ax1.set_xlim(left=(distance_start / 1000) - (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR, right=(distance_end / 1000) + (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR)
+            ax1.legend()
                      
             ax1.grid()
+            textstr = '\n'.join((
+                f'f: {freq / 1e6:.2f} MHz',
+                f'ht: {height_tx:.1f} m',
+                f'hr: {height_rx:.1f} m',
+                f'Pt: {tx_power:.2f} W',
+                f'K: {earth_radius_factor:.3f}',
+                f'hrms: {roughness:.2f} m',
+                f'σ: {conductivity:.1e} S/m',
+                f'εr : {permitivity:.0f}',
+                f'Pol: {self.ui.antenna_pol_input.currentText()}',
+                f'Ant: {self.ui.antenna_type_input.currentText()}',
+                f'',
+                f'Rad hor: {LOS / 1000:.1f} km'
+            ))
+
+            props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+            ax1.text(0.96, 0.96, textstr, transform=ax1.transAxes, fontsize=8,
+                     verticalalignment='top', horizontalalignment='right', bbox=props)
             
             
             cursor1 = Cursor(ax1)
@@ -213,10 +243,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax2.grid()
             
             if distance_end >= LOS:
-                ax2.axvline(x=LOS / 1000, color='g', linestyle='--', label=f'Radio horizonte: {LOS / 1000:.2f} km')
-                ax2.legend()
+                ax2.axvline(x=LOS / 1000, color='g', linestyle='--')
                 
             ax2.set_xlim(left=(distance_start / 1000) - (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR, right=(distance_end / 1000) + (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR)
+
+            ax2.text(0.96, 0.96, textstr, transform=ax2.transAxes, fontsize=8,
+                     verticalalignment='top', horizontalalignment='right', bbox=props)
             
             cursor2 = Cursor(ax2)
             self.canvas2.mpl_connect('motion_notify_event', cursor2.on_mouse_move)
@@ -242,11 +274,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             # variación con la altura de la antena
             if vary_tx:
-                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_rx, distance_end, vary_tx=True)
+                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_rx, vary_tx=True)
                 fixed_height = height_rx
                 fixed_label = 'Altura de la antena Rx'
             else:
-                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_tx, distance_end, vary_tx=False)
+                heights, E_totals_height, P_rs_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_tx, vary_tx=False)
                 fixed_height = height_tx
                 fixed_label = 'Altura de la antena Tx'
             
@@ -268,8 +300,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax3.set_ylim(bottom=np.min(P_rs_height) - (np.max(P_rs_height) - np.min(P_rs_height))*PLOT_Y_MARGIN_FACTOR, top=np.max(P_rs_height) + (np.max(P_rs_height) - np.min(P_rs_height))*PLOT_Y_MARGIN_FACTOR)
             if self.ui.scatter_checkbox.isChecked():
                 ax3.scatter(heights, P_rs_height, color='red', marker='x', alpha=0.5)
-            ax3.legend()
+            ax3.legend(fontsize=8)
             ax3.grid()
+            
+            ax3.set_xlim(left=(heights[0]) - (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR, right=(heights[-1]) + (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR)
+            
+            textstr += f'\nd: {distances[-1] / 1000:.1F} km'
+            ax3.text(0.98, 0.96, textstr, transform=ax3.transAxes, fontsize=8,
+                     verticalalignment='top', horizontalalignment='right', bbox=props)
+            
+            self.figure3.tight_layout()
             
             cursor3 = Cursor(ax3)
             self.canvas3.mpl_connect('motion_notify_event', cursor3.on_mouse_move)
@@ -288,8 +328,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax4.set_ylim(bottom=np.min(E_totals_height) - (np.max(E_totals_height) - np.min(E_totals_height))*PLOT_Y_MARGIN_FACTOR, top=np.max(E_totals_height) + (np.max(E_totals_height) - np.min(E_totals_height))*PLOT_Y_MARGIN_FACTOR)
             if self.ui.scatter_checkbox.isChecked():
                 ax4.scatter(heights, E_totals_height, color='red', marker='x')
-            ax4.legend()
+            ax4.legend(fontsize=8)
             ax4.grid()
+            
+            ax4.set_xlim(left=(heights[0]) - (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR, right=(heights[-1]) + (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR)
+            
+            ax4.text(0.98, 0.96, textstr, transform=ax4.transAxes, fontsize=8,
+                     verticalalignment='top', horizontalalignment='right', bbox=props)           
             
             cursor4 = Cursor(ax4)
             self.canvas4.mpl_connect('motion_notify_event', cursor4.on_mouse_move)
@@ -310,3 +355,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             #self.show_error_message(
             #    "Error", "Por favor, ingrese valores numéricos válidos en todos los campos.")
             print('error xd')
+
+    def export_table_to_csv(self, table, default_filename):
+        options = QFileDialog.Options()
+        file_path, _ = QFileDialog.getSaveFileName(self, "Guardar tabla como CSV", default_filename, "CSV Files (*.csv);;All Files (*)", options=options)
+        if file_path:
+            with open(file_path, 'w', newline='') as file:
+                writer = csv.writer(file)
+                # Escribir encabezados
+                headers = [table.horizontalHeaderItem(i).text() for i in range(table.columnCount())]
+                writer.writerow(headers)
+                # Escribir datos de la tabla
+                for row in range(table.rowCount()):
+                    row_data = [table.item(row, col).text() if table.item(row, col) is not None else '' for col in range(table.columnCount())]
+                    writer.writerow(row_data)
+                           
+                # Escribir metadata
+                writer.writerow([])
+                writer.writerow(['Metadata'])
+                writer.writerow([self.metadata_str])
+    

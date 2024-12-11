@@ -34,7 +34,8 @@ class PropagationCalculator:
         self.antenna_rx_gain = ANTENNA_GAINS[int(antenna_type)]
         self.earth_radius_factor = earth_radius_factor
         self.antenna_pol = antenna_pol
-        self.LOS = None
+        self.LOS_point_to_point = None
+        self.max_distance = None
 
     def calculate_point_to_point(self, height_tx, height_rx, distance):
         
@@ -43,9 +44,8 @@ class PropagationCalculator:
         ht = height_tx
         hr = height_rx
 
-        if r >= self.LOS:
-            # print(f"LOS distance is {self.LOS}. r={r}")
-            return np.finfo(float).eps, np.finfo(float).eps    
+        if r >= self.LOS_point_to_point:
+            return None, None, None, None
         
         p = (2 / np.sqrt(3)) * np.sqrt(re * (hr + ht) + r*r/4)
         
@@ -78,40 +78,13 @@ class PropagationCalculator:
         # Delta_R = (4 * R1 * R2 * (np.sin(Psi)**2)) / (R1 + R2 + Rd)     # diferencia de camino físico    
         
         Delta_R = R1 + R2 - Rd
-        # if Delta_R <= 0:
-        #     print(f"Warning: Delta_R={Delta_R} is out of range. Calculation may be inaccurate.")
-        #     return np.finfo(float).eps, np.finfo(float).eps
-
+        
         sqrt_arg = Delta_R * (R1 + R2 + Rd) / (4 * R1 * R2)
-        # if sqrt_arg < 0:
-        #     print(f"Warning: sqrt_arg={sqrt_arg} is out of range. Calculation may be inaccurate.")
-        #     return np.finfo(float).eps, np.finfo(float).eps
-        
         arcsin_arg = np .sqrt(sqrt_arg) 
-        # if arcsin_arg > 1 or arcsin_arg < -1:
-        #     print(f"Warning: arcsin_arg={arcsin_arg} is out of range. Calculation may be inaccurate.")
-        #     return np.finfo(float).eps, np.finfo(float).eps
-        
         Psi = np.arcsin(arcsin_arg)
-        # if Psi <= 0 or Psi >= (np.pi / 2):
-        #     print(f"Warning: Psi={Psi} is out of range. Calculation may be inaccurate.")
-        #     return np.finfo(float).eps, np.finfo(float).eps
-        
-        # if (r >= 25.5*1000 and r <= 26.5*1000):
-        #     print(f"r is between 25.5 and 26.5. Psi={Psi}, Delta_R={Delta_R}")
-        #     print(f"R1={R1}, R2={R2}, Rd={Rd}")
-        #     print("")
-        
-        # if (r >= 30*1000 and r <= 32*1000):
-        #     print(f"r is between 30 and 32. Psi={Psi}, Delta_R={Delta_R}")
-        #     print(f"R1={R1}, R2={R2}, Rd={Rd}")
-        #     print("")
-        
+ 
         Delta = self.Beta * Delta_R                                     # diferencia de camino óptico
         
-
-        
-
 
         P_t = self.tx_power  # potencia de transmisión
         E_zero = np.sqrt(30 * P_t) / Rd
@@ -141,12 +114,14 @@ class PropagationCalculator:
         
         # Ganancia de antenas
         P_r = P_r * self.antenna_tx_gain * self.antenna_rx_gain
+        
+        
+        # Pérdida por espacio libre
+        L_fs = (4 * np.pi * r / (C / self.freq)) ** 2
+        P_r_fs = P_t  / L_fs # sin considerar ganancias de antenas
+        E_fs = np.sqrt(30 * P_r_fs) / r
 
-        # if height_tx == 7:
-        #     print(f"height_tx is 7. E_total={E_total}, P_r={P_r}")
-
-
-        return E_total, P_r
+        return E_total, P_r, E_fs, P_r_fs
 
     def calculate_calc_los(self, height_tx, height_rx):
         re = self.earth_radius_factor * EARTH_RADIUS
@@ -167,45 +142,72 @@ class PropagationCalculator:
             return Delta_R
 
         
-        r_initial_guess = 1e3
+        r_initial_guess = 50e0
         r_solution = fsolve(delta_r_function, r_initial_guess)
         
-        self.LOS = r_solution[0]
+        self.LOS_point_to_point = r_solution[0]
         
     
     def calcualte_get_los(self):
-        if self.LOS is None:
+        if self.LOS_point_to_point is None:
             raise Exception("LOS distance has not been calculated")
         
-        return self.LOS   
+        return self.LOS_point_to_point   
         
 
     def calculate_variation_with_distance(self, height_tx, height_rx, distance_start, distance_end, distance_step):
         distances = np.arange(distance_start, distance_end+distance_step, distance_step)
         E_totals = []
         P_rs = []
+        E_fss = []
+        P_r_fss = []
 
         for distance in distances:
-            E_total, P_r = self.calculate_point_to_point(height_tx, height_rx, distance)
+            E_total, P_r, E_fs, P_r_fs = self.calculate_point_to_point(height_tx, height_rx, distance)
+            
+            if E_total is None or P_r is None:
+                distances = distances[:len(E_totals)]
+                break
+            
             E_totals.append(E_total)
             P_rs.append(P_r)
+            E_fss.append(E_fs)
+            P_r_fss.append(P_r_fs)
+            
+            # distancia máxima dentro de radiohorizonte, stepizada
+            self.max_distance = distances[len(E_totals)-1]
+        
+        return distances, E_totals, P_rs, E_fss, P_r_fss
 
-        return distances, E_totals, P_rs
-
-    def calculate_variation_with_height(self, height_start, height_end, height_step, height_fixed, distance, vary_tx=True):
+    def calculate_variation_with_height(self, height_start, height_end, height_step, height_fixed, vary_tx=True):
         heights = np.arange(height_start, height_end+height_step, height_step)
         E_totals = []
         P_rs = []
+        distance = self.max_distance
+
+        valid_heights = []
 
         for height in heights:
             if vary_tx:
-                E_total, P_r = self.calculate_point_to_point(height, height_fixed, distance)
+                self.calculate_calc_los(height, height_fixed)
+                
+                if self.LOS_point_to_point is not None and distance >= self.LOS_point_to_point:
+                    continue
+                
+                E_total, P_r, _, _ = self.calculate_point_to_point(height, height_fixed, distance)
             else:
-                E_total, P_r = self.calculate_point_to_point(height_fixed, height, distance)
+                self.calculate_calc_los(height_fixed, height)
+                
+                if self.LOS_point_to_point is not None and distance >= self.LOS_point_to_point:
+                    continue
+                
+                E_total, P_r, _, _ = self.calculate_point_to_point(height_fixed, height, distance)
+            
+            valid_heights.append(height)
             E_totals.append(E_total)
             P_rs.append(P_r)
 
-        return heights, E_totals, P_rs
+        return valid_heights, E_totals, P_rs
 
     def plot_results(self, x_values, y_values, x_label, y_label, title):
         plt.figure()
