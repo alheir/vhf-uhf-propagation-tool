@@ -4,6 +4,9 @@
   - [Contexto](#contexto)
   - [Consigna](#consigna)
   - [TO-DO](#to-do)
+    - [Core](#core)
+    - [Aesthetic](#aesthetic)
+    - [Old](#old)
   - [Requisitos](#requisitos)
   - [Ejecución](#ejecución)
   - [Crear Instalador](#crear-instalador)
@@ -52,26 +55,53 @@ Salidas: estos son los resultados que el programa debe poder calcular.
 
 ## TO-DO
 
-- Sobre escalas/ejes:
-  * Potencias: dBm
-  * Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)
+### Core
 
-- Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:
-  * Cursor a mano
-  * Poder setear coordenada (ingresar algún km intermedio y que te tire la potencia / campo)
 
-- Omitir di fracción transhorizonte
+1. ~~Polarización de antenas: solo vertical+vertical o horizontal+horizontal~~
+   1. ~~Remover ángulo~~
+   2. ~~Afecta en quedarte con los coefs // o perpendicular.~~
+2. ~~Verificar cálculo de tierra esférica:~~
+   ~~1. Alturas ht y hr efectivas, que daban negativas y rompían el factor de divergencia~~
+3. ~~Revisar efecto de tipo de antena; no parecía afectar.~~
+4. Revisar que cambiar "cosas" hace cambiar valores
+   1. Revisar valor inicial de rugosidad (se cambió a $\mu$m)
+   2. (creemos solucionado) ~~Rampita?? ~~
+      1. ![alt text](image-1.png)
+5. Buscar alguna simulación/medición hecha con valores conocidos para contrastar lo nuestro.
+   1. ¿Buscar nosotros? ¿Patricio?
+6. ~~Ajustar valores default (permitivadad > 1)~~
+   1. OPCIONAL: poner presets como tierra húmeda
+7. ~~Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:~~
+  * ~~Cursor a mano~~
+8. ~~Revisar indices/distancias mínimas para arrancar a calcular.~~
+9.  ~~**Se detecta Psi negativo**!=~~
+   1.  ~~Y también en la pic 4.2.1~~
+10. ~~Exportar bien tablas.~~
+11. ~~Agregar a las tablas coefs de reflexión total~~
+12. Revisar ganancia de curva por espacio libre. ~~¿Hacerla toggeable?~~ ~~Agregarla al plot de espacio eléctrico.~~
+13. Rampita. Esperar a data de Patricio. // Umbral límite de D.
+14. En los gráficos en función de la altura sería interesante que calcularán el número de zona de Fresnel despejada, lo charlamos después.
 
-- Agregar cálculo con radio terrestre (k)
+### Aesthetic
 
-- Sobre rugosidad: criterio Rayleigh
-  * Multiplica luego a los coeficientes de Fresnel
+1. ~~Ajustar escalas verticales~~
+   * ~~Potencias: dBm~~
+   * ~~Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)~~
+2. ~~Plots de potencia arrancan siempre en +4dBm~~
+3. ~~**Agregar línea vertical en el límite de transhorizonte**~~
+4. ~~Autoajustar ancho de tablas al contenido~~
 
-- Agregar línea vertical en el límite de transhorizonte
+### Old
 
-- Sobre tipos de antena: solo modificar la ganancia.
+- ~~Omitir di fracción transhorizonte~~
 
-- Sobre polarización: usar lineal, poder elegir el ángulo de Tx y Rx. Cuando estén desfasadas 90°, se anula la recepción.
+- ~~Agregar cálculo con radio terrestre (k)~~
+
+- ~~Sobre rugosidad: criterio Rayleigh~~
+  * ~~Multiplica luego a los coeficientes de Fresnel~~
+  
+- ~~Sobre tipos de antena: solo modificar la ganancia.~~
 
 ## Requisitos
 

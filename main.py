@@ -1,15 +1,9 @@
+from gui import MainWindow
 import sys
 from PyQt6.QtWidgets import QApplication
-from gui import PropagationCalculatorGUI
-
-def main():
-    app = QApplication(sys.argv)
-    window = PropagationCalculatorGUI()
-    window.show()
-    sys.exit(app.exec())
 
 if __name__ == "__main__":
-    main()
-    
-    
-    
+    app = QApplication(sys.argv)  # Create the application    
+    window = MainWindow()         # Create an instance of your MainWindow
+    window.show()                 # Show the window
+    sys.exit(app.exec())          # Start the event loop    
