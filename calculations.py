@@ -45,7 +45,7 @@ class PropagationCalculator:
         hr = height_rx
 
         if r >= self.LOS_point_to_point:
-            return None, None, None, None
+            return None, None, None, None, None, None
         
         p = (2 / np.sqrt(3)) * np.sqrt(re * (hr + ht) + r*r/4)
         
@@ -118,10 +118,10 @@ class PropagationCalculator:
         
         # Pérdida por espacio libre
         L_fs = (4 * np.pi * r / (C / self.freq)) ** 2
-        P_r_fs = P_t  / L_fs # sin considerar ganancias de antenas
+        P_r_fs = P_t / L_fs # sin considerar ganancias de antenas
         E_fs = np.sqrt(30 * P_r_fs) / r
-
-        return E_total, P_r, E_fs, P_r_fs
+        
+        return E_total, P_r, E_fs, P_r_fs, np.abs(Gamma), np.abs(F_i)
 
     def calculate_calc_los(self, height_tx, height_rx):
         re = self.earth_radius_factor * EARTH_RADIUS
@@ -161,9 +161,11 @@ class PropagationCalculator:
         P_rs = []
         E_fss = []
         P_r_fss = []
+        Gammas = []
+        F_is = []
 
         for distance in distances:
-            E_total, P_r, E_fs, P_r_fs = self.calculate_point_to_point(height_tx, height_rx, distance)
+            E_total, P_r, E_fs, P_r_fs, Gamma, F_i = self.calculate_point_to_point(height_tx, height_rx, distance)
             
             if E_total is None or P_r is None:
                 distances = distances[:len(E_totals)]
@@ -173,16 +175,22 @@ class PropagationCalculator:
             P_rs.append(P_r)
             E_fss.append(E_fs)
             P_r_fss.append(P_r_fs)
+            Gammas.append(Gamma)
+            F_is.append(F_i)
+            
             
             # distancia máxima dentro de radiohorizonte, stepizada
             self.max_distance = distances[len(E_totals)-1]
         
-        return distances, E_totals, P_rs, E_fss, P_r_fss
+        return distances, E_totals, P_rs, E_fss, P_r_fss, Gammas, F_is
 
     def calculate_variation_with_height(self, height_start, height_end, height_step, height_fixed, vary_tx=True):
         heights = np.arange(height_start, height_end+height_step, height_step)
         E_totals = []
         P_rs = []
+        Gammas = []
+        F_is = []
+        
         distance = self.max_distance
 
         valid_heights = []
@@ -194,20 +202,22 @@ class PropagationCalculator:
                 if self.LOS_point_to_point is not None and distance >= self.LOS_point_to_point:
                     continue
                 
-                E_total, P_r, _, _ = self.calculate_point_to_point(height, height_fixed, distance)
+                E_total, P_r, _, _, Gamma, F_i = self.calculate_point_to_point(height, height_fixed, distance)
             else:
                 self.calculate_calc_los(height_fixed, height)
                 
                 if self.LOS_point_to_point is not None and distance >= self.LOS_point_to_point:
                     continue
                 
-                E_total, P_r, _, _ = self.calculate_point_to_point(height_fixed, height, distance)
+                E_total, P_r, _, _, Gamma, F_i = self.calculate_point_to_point(height_fixed, height, distance)
             
             valid_heights.append(height)
             E_totals.append(E_total)
             P_rs.append(P_r)
+            Gammas.append(Gamma)
+            F_is.append(F_i)
 
-        return valid_heights, E_totals, P_rs
+        return valid_heights, E_totals, P_rs, Gammas, F_is
 
     def plot_results(self, x_values, y_values, x_label, y_label, title):
         plt.figure()

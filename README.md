@@ -57,6 +57,7 @@ Salidas: estos son los resultados que el programa debe poder calcular.
 
 ### Core
 
+
 1. ~~Polarización de antenas: solo vertical+vertical o horizontal+horizontal~~
    1. ~~Remover ángulo~~
    2. ~~Afecta en quedarte con los coefs // o perpendicular.~~
@@ -75,8 +76,12 @@ Salidas: estos son los resultados que el programa debe poder calcular.
   * ~~Cursor a mano~~
 8. ~~Revisar indices/distancias mínimas para arrancar a calcular.~~
 9.  ~~**Se detecta Psi negativo**!=~~
-   1.  ![alt text](image.png)
-   2.  ~~Y también en la pic 4.2.1~~
+   1.  ~~Y también en la pic 4.2.1~~
+10. ~~Exportar bien tablas.~~
+11. ~~Agregar a las tablas coefs de reflexión total~~
+12. Revisar ganancia de curva por espacio libre. ~~¿Hacerla toggeable?~~ ~~Agregarla al plot de espacio eléctrico.~~
+13. Rampita. Esperar a data de Patricio. // Umbral límite de D.
+14. En los gráficos en función de la altura sería interesante que calcularán el número de zona de Fresnel despejada, lo charlamos después.
 
 ### Aesthetic
 
