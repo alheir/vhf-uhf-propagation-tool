@@ -1,3 +1,26 @@
+"""
+This module contains the implementation of the main GUI for the VHF-UHF Propagation Tool using PyQt6.
+
+Classes:
+    Cursor: A class to create a crosshair cursor for matplotlib plots.
+    MainWindow: The main window class for the VHF-UHF Propagation Tool GUI.
+
+Cursor:
+    Methods:
+        __init__(self, ax): Initializes the Cursor with the given axes.
+        set_cross_hair_visible(self, visible): Sets the visibility of the crosshair.
+        on_mouse_move(self, event): Updates the crosshair position based on mouse movement.
+
+MainWindow:
+    Methods:
+        __init__(self): Initializes the main window and sets up the UI components.
+        calculate(self): Performs the propagation calculations and updates the plots and tables.
+        export_table_to_csv(self, table, default_filename): Exports the given table to a CSV file.
+        scatter_checkbox_changed(self): Handles the state change of the scatter checkbox.
+        fs_checkbox_changed(self): Handles the state change of the free space checkbox.
+        databox_checkbox_changed(self): Handles the state change of the data box checkbox.
+"""
+
 from PyQt6.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QMenu
 from PyQt6.QtGui import QAction, QIcon
 from design import Ui_MainWindow  
@@ -113,6 +136,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         self.ui.scatter_checkbox.stateChanged.connect(self.scatter_checkbox_changed)
         self.ui.fs_checkbox.stateChanged.connect(self.fs_checkbox_changed)
+        self.ui.databox_checkbox.stateChanged.connect(self.databox_checkbox_changed)
         
     
     @pyqtSlot()
@@ -206,6 +230,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             calculator.calculate_calc_los(height_tx, height_rx)
             LOS = calculator.calculate_get_los()
             
+            if self.ui.scatter_checkbox.isEnabled() == False:
+                self.ui.scatter_checkbox.setStyleSheet("color: rgb(238, 238, 238);")
+                self.ui.fs_checkbox.setStyleSheet("color: rgb(238, 238, 238);")
+                self.ui.databox_checkbox.setStyleSheet("color: rgb(238, 238, 238);")
+                self.ui.pushExp1.setStyleSheet("color: rgb(238, 238, 238);")
+                self.ui.pushExp2.setStyleSheet("color: rgb(238, 238, 238);")
+                self.ui.scatter_checkbox.setEnabled(True)
+                self.ui.fs_checkbox.setEnabled(True)
+                self.ui.databox_checkbox.setEnabled(True)
+                self.ui.pushExp1.setEnabled(True)
+                self.ui.pushExp2.setEnabled(True)
+
+            
             #############################
             
             # punto a punto
@@ -272,7 +309,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ))
 
             props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-            ax1.text(0.96, 0.96, self.metadata_str, transform=ax1.transAxes, fontsize=8,
+            self.metadata_text_ax1 = ax1.text(0.96, 0.96, self.metadata_str, transform=ax1.transAxes, fontsize=8,
                      verticalalignment='top', horizontalalignment='right', bbox=props)
             
             cursor1 = Cursor(ax1)
@@ -306,8 +343,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             ax2.legend(fontsize=8)
 
-            ax2.text(0.96, 0.96, self.metadata_str, transform=ax2.transAxes, fontsize=8,
-                     verticalalignment='top', horizontalalignment='right', bbox=props)
+            self.metadata_text_ax2 = ax2.text(0.96, 0.96, self.metadata_str, transform=ax2.transAxes, fontsize=8,
+                                              verticalalignment='top', horizontalalignment='right', bbox=props)
             
             cursor2 = Cursor(ax2)
             self.canvas2.mpl_connect('motion_notify_event', cursor2.on_mouse_move)
@@ -363,24 +400,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax3.set_ylabel('Potencia recibida (dBm)')
             ax3.set_ylim(bottom=np.min(P_rs_height) - (np.max(P_rs_height) - np.min(P_rs_height))*PLOT_Y_MARGIN_FACTOR, top=np.max(P_rs_height) + (np.max(P_rs_height) - np.min(P_rs_height))*PLOT_Y_MARGIN_FACTOR)
             self.scatter_pr_h = ax3.scatter(heights, P_rs_height, color='blue', marker='x', alpha=0.5)
-            ax3.legend(fontsize=8)
+            ax3.legend(loc='upper left', fontsize=8)
             ax3.grid(True, which='both', linestyle='--')
             
             # for i, txt in enumerate(fresnel_zones):
             #     ax3.annotate(f'{int(txt)}', (heights[i], P_rs_height[i]), textcoords="offset points", xytext=(0,10), ha='center')
                 
             ax3_2 = ax3.twinx()
-            ax3_2.plot(heights, fresnel_zones, color='r', label='Zona de Fresnel', alpha=0.5)
+            ax3_2.scatter(heights, fresnel_zones, color='r', label='Zona de Fresnel', alpha=0.33, marker='.')
             ax3_2.yaxis.get_major_locator().set_params(integer=True)
             ax3_2.set_ylim(bottom=-0.5, top=max(fresnel_zones) + 1)
             ax3_2.set_ylabel('Zona de Fresnel despejada')
-            ax3_2.legend(loc='upper left', fontsize=8)
-            ax3_2.grid(False)
+            ax3_2.legend(loc='lower right', fontsize=8)
+            ax3_2.grid(True, axis='y', linestyle='dotted', alpha=0.75)
             
             ax3.set_xlim(left=(heights[0]) - (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR, right=(heights[-1]) + (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR)
             
             self.metadata_str += f'\nd: {distances[-1] / 1000:.1F} km'
-            ax3.text(0.98, 0.96, self.metadata_str, transform=ax3.transAxes, fontsize=8,
+            self.metadata_text_ax3 = ax3.text(0.98, 0.96, self.metadata_str, transform=ax3.transAxes, fontsize=8,
                      verticalalignment='top', horizontalalignment='right', bbox=props)
             
             cursor3 = Cursor(ax3)
@@ -400,20 +437,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax4.set_ylim(bottom=np.min(E_totals_height) - (np.max(E_totals_height) - np.min(E_totals_height))*PLOT_Y_MARGIN_FACTOR, top=np.max(E_totals_height) + (np.max(E_totals_height) - np.min(E_totals_height))*PLOT_Y_MARGIN_FACTOR)
             self.scatter_er_h = ax4.scatter(heights, E_totals_height, color='blue', marker='x')
             
-            ax4.legend(fontsize=8)
+            ax4.legend(loc='upper left', fontsize=8)
             ax4.grid(True, which='both', linestyle='--')
             
             ax4_2 = ax4.twinx()
-            ax4_2.plot(heights, fresnel_zones, color='r', label='Zona de Fresnel', alpha=0.5)
+            ax4_2.scatter(heights, fresnel_zones, color='r', label='Zona de Fresnel', alpha=0.33, marker='.')
             ax4_2.yaxis.get_major_locator().set_params(integer=True)
             ax4_2.set_ylim(bottom=-0.5, top=max(fresnel_zones) + 1)
             ax4_2.set_ylabel('Zona de Fresnel despejada')
-            ax4_2.legend(loc='upper left', fontsize=8)
-            ax4_2.grid(False)
+            ax4_2.legend(loc='lower right', fontsize=8)
+            ax4_2.grid(True, axis='y', linestyle='dotted', alpha=0.75)
             
             ax4.set_xlim(left=(heights[0]) - (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR, right=(heights[-1]) + (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR)
             
-            ax4.text(0.98, 0.96, self.metadata_str, transform=ax4.transAxes, fontsize=8,
+            self.metadata_text_ax4 = ax4.text(0.98, 0.96, self.metadata_str, transform=ax4.transAxes, fontsize=8,
                      verticalalignment='top', horizontalalignment='right', bbox=props)           
             
             cursor4 = Cursor(ax4)
@@ -552,3 +589,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             self.canvas1.draw()
             self.canvas2.draw()  
+
+    def databox_checkbox_changed(self):
+        if self.ui.databox_checkbox.isChecked():
+            self.metadata_text_ax1.set_visible(True)
+            self.metadata_text_ax2.set_visible(True)
+            self.metadata_text_ax3.set_visible(True)
+            self.metadata_text_ax4.set_visible(True)
+        else:
+            self.metadata_text_ax1.set_visible(False)
+            self.metadata_text_ax2.set_visible(False)
+            self.metadata_text_ax3.set_visible(False)
+            self.metadata_text_ax4.set_visible(False)
+            
+        self.canvas1.draw()
+        self.canvas2.draw()
+        self.canvas3.draw()
+        self.canvas4.draw()

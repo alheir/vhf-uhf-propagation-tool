@@ -1,3 +1,30 @@
+"""
+This module contains the PropagationCalculator class, which provides methods to calculate various propagation characteristics
+for VHF and UHF signals, including point-to-point propagation, line-of-sight (LOS) distance, variation with distance, Fresnel zones, 
+and variation with height.
+    
+Classes:
+    PropagationCalculator: A class to calculate various propagation characteristics for VHF and UHF signals.
+    
+Methods:
+    __init__(self, freq, tx_power, conductivity, permitivity, roughness, antenna_type, antenna_pol, earth_radius_factor):
+        Initializes the PropagationCalculator with the given parameters.
+    calculate_point_to_point(self, height_tx, height_rx, distance):
+        Calculates the point-to-point propagation characteristics between a transmitter and receiver.
+    calculate_calc_los(self, height_tx, height_rx):
+        Calculates the line-of-sight (LOS) distance between a transmitter and receiver.
+    calculate_get_los(self):
+        Returns the calculated LOS distance.
+    calculate_variation_with_distance(self, height_tx, height_rx, distance_start, distance_end, distance_step):
+        Calculates the variation of propagation characteristics with distance.
+    calculate_fresnel_zones_checker(self, ht, hr, distance):
+        Checks the Fresnel zones for the given transmitter and receiver heights and distance.
+    calculate_variation_with_height(self, height_start, height_end, height_step, height_fixed, vary_tx=True):
+        Calculates the variation of propagation characteristics with height.
+    plot_results(self, x_values, y_values, x_label, y_label, title):
+        Plots the results of the calculations.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
@@ -195,9 +222,6 @@ class PropagationCalculator:
     def calculate_fresnel_zones_checker(self, ht, hr, distance):
         re = self.earth_radius_factor * EARTH_RADIUS
         r = distance
-        
-        if r >= self.LOS_point_to_point:
-            return None, None, None, None, None, None
         
         p = (2 / np.sqrt(3)) * np.sqrt(re * (hr + ht) + r*r/4)
         

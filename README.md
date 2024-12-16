@@ -1,5 +1,7 @@
 # VHF & UHF Propagation Tool
 
+![VHF & UHF Propagation Tool Preview](docs/preview.png)
+
 - [VHF \& UHF Propagation Tool](#vhf--uhf-propagation-tool)
   - [Contexto](#contexto)
   - [Consigna](#consigna)
@@ -57,51 +59,44 @@ Salidas: estos son los resultados que el programa debe poder calcular.
 
 ### Core
 
-
-1. ~~Polarización de antenas: solo vertical+vertical o horizontal+horizontal~~
-   1. ~~Remover ángulo~~
-   2. ~~Afecta en quedarte con los coefs // o perpendicular.~~
-2. ~~Verificar cálculo de tierra esférica:~~
-   ~~1. Alturas ht y hr efectivas, que daban negativas y rompían el factor de divergencia~~
-3. ~~Revisar efecto de tipo de antena; no parecía afectar.~~
-4. Revisar que cambiar "cosas" hace cambiar valores
-   1. Revisar valor inicial de rugosidad (se cambió a $\mu$m)
-   2. (creemos solucionado) ~~Rampita?? ~~
-      1. ![alt text](docs/rampita.png)
-5. Buscar alguna simulación/medición hecha con valores conocidos para contrastar lo nuestro.
-   1. ¿Buscar nosotros? ¿Patricio?
-6. ~~Ajustar valores default (permitivadad > 1)~~
-   1. OPCIONAL: poner presets como tierra húmeda
-7. ~~Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:~~
-  * ~~Cursor a mano~~
-8. ~~Revisar indices/distancias mínimas para arrancar a calcular.~~
-9.  ~~**Se detecta Psi negativo**!=~~
-   1.  ~~Y también en la pic 4.2.1~~
-10. ~~Exportar bien tablas.~~
-11. ~~Agregar a las tablas coefs de reflexión total~~
-12. ~~Revisar ganancia de curva por espacio libre. ¿Hacerla toggeable? Agregarla al plot de espacio eléctrico.~~
-13. Rampita. Esperar a data de Patricio. // Umbral límite de D.
-14. ~~En los gráficos en función de la altura sería interesante que calcularán el número de zona de Fresnel despejada, lo charlamos después.~~
+- [x] Polarización de antenas: solo vertical+vertical o horizontal+horizontal
+    - [x] Remover ángulo
+    - [x] Afecta en quedarte con los coefs // o perpendicular.
+- [x] Verificar cálculo de tierra esférica:
+    - [x] Alturas ht y hr efectivas, que daban negativas y rompían el factor de divergencia
+- [x] Revisar efecto de tipo de antena; no parecía afectar.
+- [ ] Revisar que cambiar "cosas" hace cambiar valores
+    - [ ] Revisar valor inicial de rugosidad (se cambió a $\mu$m)
+        - ![alt text](docs/rampita.png)
+- [ ] Buscar alguna simulación/medición hecha con valores conocidos para contrastar lo nuestro.
+- [x] Ajustar valores default (permitivadad > 1)
+    - [ ] OPCIONAL: poner presets como tierra húmeda
+- [x] Agregar cursores sobre los gráficos, para poder ver valor en cierto punto:
+    - [x] Cursor a mano
+- [x] Revisar indices/distancias mínimas para arrancar a calcular.
+- [x] **Se detecta Psi negativo**!
+- [x] Exportar bien tablas.
+- [x] Agregar a las tablas coefs de reflexión total
+- [x] Revisar ganancia de curva por espacio libre. ¿Hacerla toggeable? Agregarla al plot de espacio eléctrico.
+- [ ] Rampita. Esperar a data de Patricio. // Umbral límite de D.
+- [x] En los gráficos en función de la altura sería interesante que calcularán el número de zona de Fresnel despejada.
 
 ### Aesthetic
 
-1. ~~Ajustar escalas verticales~~
-   * ~~Potencias: dBm~~
-   * ~~Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)~~
-2. ~~Plots de potencia arrancan siempre en +4dBm~~
-3. ~~**Agregar línea vertical en el límite de transhorizonte**~~
-4. ~~Autoajustar ancho de tablas al contenido~~
+- [x] Ajustar escalas verticales
+    - [x] Potencias: dBm
+    - [x] Campo eléctrico: dBμ (decibeles sobre microvoltio por metro)
+- [x] Plots de potencia arrancan siempre en +4dBm
+- [x] **Agregar línea vertical en el límite de transhorizonte**
+- [x] Autoajustar ancho de tablas al contenido
 
 ### Old
 
-- ~~Omitir di fracción transhorizonte~~
-
-- ~~Agregar cálculo con radio terrestre (k)~~
-
-- ~~Sobre rugosidad: criterio Rayleigh~~
-  * ~~Multiplica luego a los coeficientes de Fresnel~~
-  
-- ~~Sobre tipos de antena: solo modificar la ganancia.~~
+- [x] Omitir difracción transhorizonte
+- [x] Agregar cálculo con radio terrestre (k)
+- [x] Sobre rugosidad: criterio Rayleigh
+    - [x] Multiplica luego a los coeficientes de Fresnel
+- [x] Sobre tipos de antena: solo modificar la ganancia.
 
 ## Requisitos
 
