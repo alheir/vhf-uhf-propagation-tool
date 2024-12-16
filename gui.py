@@ -204,7 +204,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                                                earth_radius_factor)
             
             calculator.calculate_calc_los(height_tx, height_rx)
-            LOS = calculator.calcualte_get_los()
+            LOS = calculator.calculate_get_los()
             
             #############################
             
@@ -256,7 +256,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax1.set_xlim(left=(distance_start / 1000) - (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR, right=(distance_end / 1000) + (distance_end/1000 - distance_start/1000)*PLOT_X_MARGIN_FACTOR)
             ax1.legend(fontsize=8)
                      
-            ax1.grid()
+            ax1.grid(True, which='both', linestyle='--')
             self.metadata_str = '\n'.join((
                 f'f: {freq / 1e6:.2f} MHz',
                 f'ht: {height_tx:.1f} m',
@@ -297,7 +297,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.scatter_er = ax2.scatter(distances / 1000, E_totals, color='b', marker='x', alpha=0.5)
             self.scatter_erfs = ax2.scatter(distances / 1000, E_fss, color='g', marker='x', alpha=0.5)
             
-            ax2.grid()
+            ax2.grid(True, which='both', linestyle='--')
             
             if distance_end >= LOS:
                 ax2.axvline(x=LOS / 1000, color='r', linestyle='dashdot', label='radhor')
@@ -338,11 +338,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             # variación con la altura de la antena
             if vary_tx:
-                heights, E_totals_height, P_rs_height, Gammas_height, F_is_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_rx, vary_tx=True)
+                heights, E_totals_height, P_rs_height, Gammas_height, F_is_height, fresnel_zones = calculator.calculate_variation_with_height(1, 2 * height_tx, height_step, height_rx, vary_tx=True)
                 fixed_height = height_rx
                 fixed_label = 'hr'
             else:
-                heights, E_totals_height, P_rs_height, Gammas_height, F_is_height = calculator.calculate_variation_with_height(1, 2 * np.max([height_rx, height_tx]), height_step, height_tx, vary_tx=False)
+                heights, E_totals_height, P_rs_height, Gammas_height, F_is_height, fresnel_zones = calculator.calculate_variation_with_height(1, 2 * height_rx, height_step, height_tx, vary_tx=False)
                 fixed_height = height_tx
                 fixed_label = 'ht'
             
@@ -364,7 +364,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax3.set_ylim(bottom=np.min(P_rs_height) - (np.max(P_rs_height) - np.min(P_rs_height))*PLOT_Y_MARGIN_FACTOR, top=np.max(P_rs_height) + (np.max(P_rs_height) - np.min(P_rs_height))*PLOT_Y_MARGIN_FACTOR)
             self.scatter_pr_h = ax3.scatter(heights, P_rs_height, color='blue', marker='x', alpha=0.5)
             ax3.legend(fontsize=8)
-            ax3.grid()
+            ax3.grid(True, which='both', linestyle='--')
+            
+            # for i, txt in enumerate(fresnel_zones):
+            #     ax3.annotate(f'{int(txt)}', (heights[i], P_rs_height[i]), textcoords="offset points", xytext=(0,10), ha='center')
+                
+            ax3_2 = ax3.twinx()
+            ax3_2.plot(heights, fresnel_zones, color='r', label='Zona de Fresnel', alpha=0.5)
+            ax3_2.yaxis.get_major_locator().set_params(integer=True)
+            ax3_2.set_ylim(bottom=-0.5, top=max(fresnel_zones) + 1)
+            ax3_2.set_ylabel('Zona de Fresnel despejada')
+            ax3_2.legend(loc='upper left', fontsize=8)
+            ax3_2.grid(False)
             
             ax3.set_xlim(left=(heights[0]) - (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR, right=(heights[-1]) + (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR)
             
@@ -390,7 +401,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.scatter_er_h = ax4.scatter(heights, E_totals_height, color='blue', marker='x')
             
             ax4.legend(fontsize=8)
-            ax4.grid()
+            ax4.grid(True, which='both', linestyle='--')
+            
+            ax4_2 = ax4.twinx()
+            ax4_2.plot(heights, fresnel_zones, color='r', label='Zona de Fresnel', alpha=0.5)
+            ax4_2.yaxis.get_major_locator().set_params(integer=True)
+            ax4_2.set_ylim(bottom=-0.5, top=max(fresnel_zones) + 1)
+            ax4_2.set_ylabel('Zona de Fresnel despejada')
+            ax4_2.legend(loc='upper left', fontsize=8)
+            ax4_2.grid(False)
             
             ax4.set_xlim(left=(heights[0]) - (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR, right=(heights[-1]) + (heights[-1] - heights[0])*PLOT_X_MARGIN_FACTOR)
             
@@ -514,8 +533,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax1.set_ylim(bottom=np.min(plot_pr[0].get_ydata()) - (np.max(plot_pr[0].get_ydata()) - np.min(plot_pr[0].get_ydata())) * PLOT_Y_MARGIN_FACTOR, 
                              top=np.max(plot_pr[0].get_ydata()) + (np.max(plot_pr[0].get_ydata()) - np.min(plot_pr[0].get_ydata())) * PLOT_Y_MARGIN_FACTOR)
             
-            self.canvas1.draw()
-            
             plot_erfs[0].set_visible(False)
             ax2.get_legend().get_texts()[1].set_visible(False)
             ax2.get_legend().get_lines()[1].set_visible(False)
@@ -523,4 +540,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             ax2.set_ylim(bottom=np.min(plot_er[0].get_ydata()) - (np.max(plot_er[0].get_ydata()) - np.min(plot_er[0].get_ydata())) * PLOT_Y_MARGIN_FACTOR, 
                              top=np.max(plot_er[0].get_ydata()) + (np.max(plot_er[0].get_ydata()) - np.min(plot_er[0].get_ydata())) * PLOT_Y_MARGIN_FACTOR)
             
+            self.scatter_prfs.set_visible(False)
+            self.scatter_erfs.set_visible(False)
+
+            self.canvas1.draw()
             self.canvas2.draw()  

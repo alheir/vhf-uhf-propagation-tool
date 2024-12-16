@@ -79,9 +79,9 @@ Salidas: estos son los resultados que el programa debe poder calcular.
    1.  ~~Y también en la pic 4.2.1~~
 10. ~~Exportar bien tablas.~~
 11. ~~Agregar a las tablas coefs de reflexión total~~
-12. Revisar ganancia de curva por espacio libre. ~~¿Hacerla toggeable?~~ ~~Agregarla al plot de espacio eléctrico.~~
+12. ~~Revisar ganancia de curva por espacio libre. ¿Hacerla toggeable? Agregarla al plot de espacio eléctrico.~~
 13. Rampita. Esperar a data de Patricio. // Umbral límite de D.
-14. En los gráficos en función de la altura sería interesante que calcularán el número de zona de Fresnel despejada, lo charlamos después.
+14. ~~En los gráficos en función de la altura sería interesante que calcularán el número de zona de Fresnel despejada, lo charlamos después.~~
 
 ### Aesthetic
 
