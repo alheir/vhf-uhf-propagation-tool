@@ -1,5 +1,8 @@
 *.sh
 
+!build_linux_exe.sh
+!build_win_exe.bat
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

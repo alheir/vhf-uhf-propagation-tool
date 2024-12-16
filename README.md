@@ -67,7 +67,7 @@ Salidas: estos son los resultados que el programa debe poder calcular.
 4. Revisar que cambiar "cosas" hace cambiar valores
    1. Revisar valor inicial de rugosidad (se cambió a $\mu$m)
    2. (creemos solucionado) ~~Rampita?? ~~
-      1. ![alt text](image-1.png)
+      1. ![alt text](docs/rampita.png)
 5. Buscar alguna simulación/medición hecha con valores conocidos para contrastar lo nuestro.
    1. ¿Buscar nosotros? ¿Patricio?
 6. ~~Ajustar valores default (permitivadad > 1)~~

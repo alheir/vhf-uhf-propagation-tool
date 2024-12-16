@@ -264,8 +264,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 f'Pt: {tx_power:.2f} W',
                 f'K: {earth_radius_factor:.3f}',
                 f'hrms: {roughness:.2f} m',
-                f'σ: {conductivity:.1e} S/m',
-                f'εr : {permitivity:.0f}',
+                f'con: {conductivity:.1e} S/m',
+                f'perm_r : {permitivity:.0f}',
                 f'Pol: {self.ui.antenna_pol_input.currentText()}',
                 f'Ant: {self.ui.antenna_type_input.currentText()}',
                 f'Rad hor: {LOS / 1000:.1f} km'
@@ -433,6 +433,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.table2.setItem(i, 4, QTableWidgetItem(f'{F_is_height[i]:.2e}'))
             self.table2.resizeColumnsToContents()
             self.table2.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+            
+            self.ui.scatter_checkbox.setChecked(True)
+            self.ui.fs_checkbox.setChecked(True)
+            self.scatter_pr.set_visible(True)
+            self.scatter_er.set_visible(True)
+            self.scatter_prfs.set_visible(True)
+            self.scatter_erfs.set_visible(True)
             
         except ValueError as e:
             error_message = f"Error: {str(e)}\n\nPor favor, ingrese valores numéricos válidos en todos los campos."
