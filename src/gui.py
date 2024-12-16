@@ -93,6 +93,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout1.addWidget(self.canvas1)
         self.ui.main_layout.addLayout(layout1, 0, 1)
         self.figure1.set_constrained_layout(True)
+        self.toolbar1.hide()
         
         self.figure2 = plt.figure()
         self.canvas2 = FigureCanvas(self.figure2)
@@ -102,6 +103,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout2.addWidget(self.canvas2)
         self.ui.main_layout.addLayout(layout2, 0, 2)
         self.figure2.set_constrained_layout(True)
+        self.toolbar2.hide()
         
         self.figure3 = plt.figure()
         self.canvas3 = FigureCanvas(self.figure3)
@@ -111,6 +113,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout3.addWidget(self.canvas3)
         self.ui.main_layout.addLayout(layout3, 1, 1)
         self.figure3.set_constrained_layout(True)
+        self.toolbar3.hide()
         
         self.figure4 = plt.figure()
         self.canvas4 = FigureCanvas(self.figure4)
@@ -120,6 +123,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout4.addWidget(self.canvas4)
         self.ui.main_layout.addLayout(layout4, 1, 2)
         self.figure4.set_constrained_layout(True)
+        self.toolbar4.hide()
         
         self.table1 = QTableWidget()
         self.ui.table_layout.addWidget(self.table1)
@@ -137,6 +141,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ui.scatter_checkbox.stateChanged.connect(self.scatter_checkbox_changed)
         self.ui.fs_checkbox.stateChanged.connect(self.fs_checkbox_changed)
         self.ui.databox_checkbox.stateChanged.connect(self.databox_checkbox_changed)
+        self.ui.toolbar_checkbox.stateChanged.connect(lambda: self.toolbar1.setVisible(not self.toolbar1.isVisible()))
+        self.ui.toolbar_checkbox.stateChanged.connect(lambda: self.toolbar2.setVisible(not self.toolbar2.isVisible()))
+        self.ui.toolbar_checkbox.stateChanged.connect(lambda: self.toolbar3.setVisible(not self.toolbar3.isVisible()))
+        self.ui.toolbar_checkbox.stateChanged.connect(lambda: self.toolbar4.setVisible(not self.toolbar4.isVisible()))
         
     
     @pyqtSlot()
@@ -236,11 +244,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.ui.databox_checkbox.setStyleSheet("color: rgb(238, 238, 238);")
                 self.ui.pushExp1.setStyleSheet("color: rgb(238, 238, 238);")
                 self.ui.pushExp2.setStyleSheet("color: rgb(238, 238, 238);")
+                self.ui.toolbar_checkbox.setStyleSheet("color: rgb(238, 238, 238);")
                 self.ui.scatter_checkbox.setEnabled(True)
                 self.ui.fs_checkbox.setEnabled(True)
                 self.ui.databox_checkbox.setEnabled(True)
                 self.ui.pushExp1.setEnabled(True)
                 self.ui.pushExp2.setEnabled(True)
+                self.ui.toolbar_checkbox.setEnabled(True)
 
             
             #############################
